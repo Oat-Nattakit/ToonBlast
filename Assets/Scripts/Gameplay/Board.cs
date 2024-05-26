@@ -326,6 +326,7 @@ public class Board : MonoBehaviour
         List<Symbol> symbolMatch = new List<Symbol>();
         this.selecttoRemove(_symbol, symbolMatch);
         this.RemoveAndRefill(symbolMatch);
+        this._findNerber();
     }
 
     private void SwapSymbol(Symbol _select, Symbol _target)
@@ -392,7 +393,7 @@ public class Board : MonoBehaviour
             int Yindex = symbol.yIndex;
 
             Destroy(symbol.gameObject);
-            //symbol.symbolImageObj.color = Color.white;
+           
 
             this._boardGame[Xindex, Yindex] = new Node(true, null);
         }
@@ -432,32 +433,30 @@ public class Board : MonoBehaviour
 
         if (y + yOffset == this.BoardHight)
         {
-            Debug.LogWarning(x);
-           // this.SpawnSymbolAtTop(x);
+            this.SpawnSymbolAtTop(x);
         }
     }
 
     private void SpawnSymbolAtTop(int x)
-    {
+    {      
         int index = this.FindIndexOfLowerNull(x);
-        int locationToMove = this.BoardHight - index;
-
+        int locationToMove = this.BoardHight - index;       
         int randomValue = Random.Range(0, this.symbolPrefabs.Length);
-        GameObject newSymbol = Instantiate(this.symbolPrefabs[randomValue], this.boardGameGo.transform);
-        newSymbol.transform.localPosition = new Vector2(x - spacingX, this.BoardHight - spacingY);
+        GameObject newSymbol = Instantiate(this.symbolPrefabs[randomValue], this.boardGameGo.transform);     
+        newSymbol.transform.localPosition = new Vector2((x * spacingX), this.BoardHight * spacingY);
         newSymbol.GetComponent<Symbol>().SetIndicies(x, index);
-
         this._boardGame[x, index] = new Node(true, newSymbol);
-
-        Vector3 targetPos = new Vector3(newSymbol.transform.localPosition.x, newSymbol.transform.localPosition.y - locationToMove, newSymbol.transform.localPosition.z);
+        Vector3 targetPos = new Vector3(newSymbol.transform.localPosition.x, newSymbol.transform.localPosition.y - (locationToMove* spacingY), newSymbol.transform.localPosition.z);
         newSymbol.GetComponent<Symbol>().MovaToTarget(targetPos);
     }
 
     private int FindIndexOfLowerNull(int x)
     {
         int lowerNull = 99;
-        for (int y = 7; y >= 0; y++)
+        for (int y = (this.BoardWidth - 1); y >= 0; y--)
+
         {
+            //Debug.LogWarning(x + " " + y);
             if (this._boardGame[x, y].symbol == null)
             {
                 lowerNull = y;

@@ -679,8 +679,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3a5e4ebd88cc7c4f9f5914887b33a37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BoardWidth: 4
-  BoardHight: 4
+  BoardWidth: 3
+  BoardHight: 3
   spacingX: 101
   spacingY: 101
   symbolPrefabs:
