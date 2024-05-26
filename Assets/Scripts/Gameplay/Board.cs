@@ -12,8 +12,8 @@ public class Board : MonoBehaviour
     public int BoardWidth = 8;
     public int BoardHight = 8;
 
-    public float spacingX = 0;
-    public float spacingY = 0;
+    public int spacingX = 0;
+    public int spacingY = 0;
 
     public GameObject[] symbolPrefabs;
 
@@ -72,6 +72,16 @@ public class Board : MonoBehaviour
 
         //CheckBoard(false);
         this._findNerber();
+        this._setBoardSize();
+    }
+
+    private void _setBoardSize()
+    {
+        float boardSizeX = (this.BoardHight * this.spacingX);
+        float boardSizeY = (this.BoardWidth * this.spacingY);
+        this.boardGameGo.transform.localPosition = new Vector2(-boardSizeX / 2, -boardSizeY / 2);
+        // this.boardGameGo.GetComponent<RectTransform>().sizeDelta = new Vector2(boardSizeX, boardSizeY);
+
     }
 
     public bool CheckBoard(bool _takeAction)
@@ -326,6 +336,7 @@ public class Board : MonoBehaviour
         List<Symbol> symbolMatch = new List<Symbol>();
         this.selecttoRemove(_symbol, symbolMatch);
         this.RemoveAndRefill(symbolMatch);
+        
         this._findNerber();
     }
 
@@ -393,7 +404,7 @@ public class Board : MonoBehaviour
             int Yindex = symbol.yIndex;
 
             Destroy(symbol.gameObject);
-           
+
 
             this._boardGame[Xindex, Yindex] = new Node(true, null);
         }
@@ -429,8 +440,7 @@ public class Board : MonoBehaviour
             symbolAbove.SetIndicies(x, y);
             this._boardGame[x, y] = this._boardGame[x, y + yOffset];
             this._boardGame[x, y + yOffset] = new Node(true, null);
-        }
-
+        }       
         if (y + yOffset == this.BoardHight)
         {
             this.SpawnSymbolAtTop(x);
@@ -438,15 +448,19 @@ public class Board : MonoBehaviour
     }
 
     private void SpawnSymbolAtTop(int x)
-    {      
+    {
         int index = this.FindIndexOfLowerNull(x);
-        int locationToMove = this.BoardHight - index;       
+        int locationToMove = this.BoardHight - index;
         int randomValue = Random.Range(0, this.symbolPrefabs.Length);
-        GameObject newSymbol = Instantiate(this.symbolPrefabs[randomValue], this.boardGameGo.transform);     
-        newSymbol.transform.localPosition = new Vector2((x * spacingX), this.BoardHight * spacingY);
-        newSymbol.GetComponent<Symbol>().SetIndicies(x, index);
-        this._boardGame[x, index] = new Node(true, newSymbol);
-        Vector3 targetPos = new Vector3(newSymbol.transform.localPosition.x, newSymbol.transform.localPosition.y - (locationToMove* spacingY), newSymbol.transform.localPosition.z);
+        GameObject newSymbol = Instantiate(this.symbolPrefabs[randomValue], this.boardGameGo.transform);
+        Symbol sym = newSymbol.GetComponent<Symbol>();
+
+        // Debug.LogWarning((this.BoardHight * spacingY) + ((index) * spacingY));
+        Debug.LogWarning(((locationToMove) * spacingY));
+        sym.transform.localPosition = new Vector2((x * spacingX), ((this.BoardHight * spacingY) / 2) + ((index) * spacingY));
+        sym.GetComponent<Symbol>().SetIndicies(x, index);
+        this._boardGame[x, index] = new Node(true, newSymbol);       
+        Vector3 targetPos = new Vector3(newSymbol.transform.localPosition.x, (sym.yIndex * spacingY), newSymbol.transform.localPosition.z);
         newSymbol.GetComponent<Symbol>().MovaToTarget(targetPos);
     }
 
@@ -503,7 +517,6 @@ public class Board : MonoBehaviour
             }
         }
 
-
     }
 
     private void selecttoRemove(Symbol symbol, List<Symbol> symbolMatch)
@@ -525,6 +538,7 @@ public class Board : MonoBehaviour
 
 
     #endregion
+
 }
 
 public class MatchResult

@@ -41,15 +41,15 @@ public class Symbol : MonoBehaviour
         this._settingSymbolColor(symbolColor); 
     }
 
-    public void MovaToTarget(Vector2 _targetPos)
+    public void MovaToTarget(Vector2 _targetPos, float duration = 0.2f)
     {
-        StartCoroutine(this.MoveCoroutine(_targetPos));
+        StartCoroutine(this.MoveCoroutine(_targetPos, duration));
     }
 
-    private IEnumerator MoveCoroutine(Vector2 _targetPos)
+    private IEnumerator MoveCoroutine(Vector2 _targetPos,float duration= 0.2f)
     {
         this.isMoving = true;
-        float duration = 0.2f;
+       
 
         Vector2 startPos = this.transform.localPosition;
         float elaspedTime = 0f;

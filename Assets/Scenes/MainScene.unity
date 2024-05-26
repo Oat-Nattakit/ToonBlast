@@ -296,7 +296,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &759443451
 MonoBehaviour:
@@ -665,7 +665,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -1624.5392, y: -1276.4237}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1650777758
 MonoBehaviour:
@@ -679,8 +679,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3a5e4ebd88cc7c4f9f5914887b33a37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BoardWidth: 3
-  BoardHight: 3
+  BoardWidth: 8
+  BoardHight: 8
   spacingX: 101
   spacingY: 101
   symbolPrefabs:
