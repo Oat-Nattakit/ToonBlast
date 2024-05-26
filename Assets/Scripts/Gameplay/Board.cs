@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -6,6 +7,8 @@ using UnityEngine.UIElements;
 
 public class Board : MonoBehaviour
 {
+
+    public static Board Instance;
 
     public int BoardWidth = 8;
     public int BoardHight = 8;
@@ -24,6 +27,11 @@ public class Board : MonoBehaviour
     [SerializeField] private bool isSymbolMove;
 
     public ArrayList boards = new ArrayList();
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     private void Update()
     {
@@ -60,12 +68,11 @@ public class Board : MonoBehaviour
                 symbols.GetComponent<Symbol>().SetIndicies(x, y);
                 symbols.name = "[" + x + "," + y + "]";
                 this._boardGame[x, y] = new Node(true, symbols);
-                this.symbolsDestory.Add(symbols);
+                this.symbolsDestory.Add(symbols);           
             }
         }
 
-
-        CheckBoard(false);
+        //CheckBoard(false);
     }
 
     private void DestorySymbole()
@@ -82,12 +89,12 @@ public class Board : MonoBehaviour
 
     public bool CheckBoard(bool _takeAction)
     {
-        // Debug.LogWarning("Check Board");
+
         bool hasMatch = false;
 
         List<Symbol> removeSymbol = new List<Symbol>();
 
-        foreach(Node node in this._boardGame)
+        foreach (Node node in this._boardGame)
         {
             if (node.symbol != null)
             {
@@ -103,7 +110,7 @@ public class Board : MonoBehaviour
                 {
                     Symbol symbols = this._boardGame[x, y].symbol.GetComponent<Symbol>();
 
-                    if (!symbols.isMatch)
+                    if (symbols.isMatch == false)
                     {
                         MatchResult matchResult = this.IsConnect(symbols);
 
@@ -138,6 +145,25 @@ public class Board : MonoBehaviour
 
         return hasMatch;
     }
+
+
+    public void checkConnect(bool _takeAction)
+    {
+        Symbol symbol = this.selectSymbol;
+        MatchResult matchResult = this.IsConnect(symbol);
+
+        if (matchResult.connectSymbols.Count >= 2)
+        {
+            MatchResult superMatch = this.superMatch(matchResult);
+
+            foreach (Symbol sym in superMatch.connectSymbols)
+            {
+                sym.symbolImageObj.color = Color.cyan;
+            }
+        }
+
+    }
+
 
     #region match
     private MatchResult superMatch(MatchResult matchSymbol)
@@ -200,11 +226,13 @@ public class Board : MonoBehaviour
     private MatchResult IsConnect(Symbol symbols)
     {
         List<Symbol> connectSymbol = new List<Symbol>();
+
         SymbolColor type = symbols.ColorSymbol;
 
         connectSymbol.Add(symbols);
 
         this.CheckDirection(symbols, new Vector2Int(1, 0), connectSymbol);
+
         this.CheckDirection(symbols, new Vector2Int(-1, 0), connectSymbol);
 
         if (connectSymbol.Count == 2)
@@ -226,10 +254,8 @@ public class Board : MonoBehaviour
             };
         }
 
-        connectSymbol.Clear();
-        connectSymbol.Add(symbols);
-
-
+        /* connectSymbol.Clear();
+         connectSymbol.Add(symbols);*/
 
         this.CheckDirection(symbols, new Vector2Int(0, 1), connectSymbol);
         this.CheckDirection(symbols, new Vector2Int(0, -1), connectSymbol);
@@ -265,6 +291,7 @@ public class Board : MonoBehaviour
     private void CheckDirection(Symbol symbol, Vector2Int direction, List<Symbol> connectSymbol)
     {
         SymbolColor color = symbol.ColorSymbol;
+
         int x = symbol.xIndex + direction.x;
         int y = symbol.yIndex + direction.y;
 
@@ -348,13 +375,10 @@ public class Board : MonoBehaviour
         yield return new WaitForSeconds(0.2f);
         bool hasMatch = CheckBoard(true);
 
-        /*if (CheckBoard())
-        {
-            
-        }
 
-       else*/
-        if(!hasMatch)
+
+
+        if (!hasMatch)
         {
             this.DoSwap(_currentSymbol, _targetSymbol);
         }
@@ -378,6 +402,7 @@ public class Board : MonoBehaviour
             int Yindex = symbol.yIndex;
 
             Destroy(symbol.gameObject);
+            symbol.symbolImageObj.color = Color.white;
 
             this._boardGame[Xindex, Yindex] = new Node(true, null);
         }
@@ -407,8 +432,8 @@ public class Board : MonoBehaviour
         {
             Symbol symbolAbove = this._boardGame[x, y + yOffset].symbol.GetComponent<Symbol>();
 
-            Vector3 targetPos = new Vector3(x - spacingX, y - spacingY, symbolAbove.transform.localPosition.z);
-
+            Vector3 targetPos = new Vector3((x * spacingX) - spacingX, (y * spacingY) - spacingY, 0);
+            Debug.LogWarning(targetPos);
             symbolAbove.MovaToTarget(targetPos);
 
             symbolAbove.SetIndicies(x, y);
@@ -430,27 +455,26 @@ public class Board : MonoBehaviour
         int randomValue = Random.Range(0, this.symbolPrefabs.Length);
         GameObject newSymbol = Instantiate(this.symbolPrefabs[randomValue], this.boardGameGo.transform);
         newSymbol.transform.localPosition = new Vector2(x - spacingX, this.BoardHight - spacingY);
-        newSymbol.GetComponent<Symbol>().SetIndicies(x,index);
+        newSymbol.GetComponent<Symbol>().SetIndicies(x, index);
 
-        this._boardGame[x, index] = new Node(true,newSymbol);
+        this._boardGame[x, index] = new Node(true, newSymbol);
 
-        Vector3 targetPos = new Vector3(newSymbol.transform.localPosition.x,newSymbol.transform.localPosition.y - locationToMove,newSymbol.transform.localPosition.z);
-        newSymbol.GetComponent<Symbol>().MovaToTarget(targetPos);   
+        Vector3 targetPos = new Vector3(newSymbol.transform.localPosition.x, newSymbol.transform.localPosition.y - locationToMove, newSymbol.transform.localPosition.z);
+        newSymbol.GetComponent<Symbol>().MovaToTarget(targetPos);
     }
 
     private int FindIndexOfLowerNull(int x)
     {
         int lowerNull = 99;
-        for(int y=7; y>= 0; y++)
+        for (int y = 7; y >= 0; y++)
         {
-            if (this._boardGame[x,y].symbol == null) { 
+            if (this._boardGame[x, y].symbol == null)
+            {
                 lowerNull = y;
             }
         }
         return lowerNull;
     }
-
-
     #endregion
 }
 

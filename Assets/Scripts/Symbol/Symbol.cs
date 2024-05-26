@@ -9,15 +9,17 @@ public class Symbol : MonoBehaviour
     [SerializeField] private Image symbolImage;
     [SerializeField] private Image symbolSpecial;
 
+    public Image symbolImageObj { get => this.symbolImage; }
+
     [SerializeField] private SymbolType Type = SymbolType.Normal;
 
     [SerializeField] private SymbolColor symbolColor = SymbolColor.Red;
     public SymbolColor ColorSymbol { get => this.symbolColor; }
 
     public int xIndex, yIndex;
-    public bool isMatch, isMoving;
+    public bool isMatch = false;
+    public bool isMoving;
     private Vector2 currPos, targetPos;
-
 
     public Symbol(int x, int y)
     {
@@ -29,12 +31,12 @@ public class Symbol : MonoBehaviour
     {
         this.xIndex = x;
         this.yIndex = y;
-    }
+    }  
 
     private void Start()
     {
         this._settingSymbolType(Type);
-        this._settingSymbolColor(symbolColor);
+        this._settingSymbolColor(symbolColor); 
     }
 
     public void MovaToTarget(Vector2 _targetPos)
@@ -50,8 +52,9 @@ public class Symbol : MonoBehaviour
         Vector2 startPos = this.transform.localPosition;
         float elaspedTime = 0f;
 
-        while (elaspedTime < duration) { 
-            float t = elaspedTime / duration;   
+        while (elaspedTime < duration)
+        {
+            float t = elaspedTime / duration;
             this.transform.localPosition = Vector2.Lerp(startPos, _targetPos, t);
             elaspedTime += Time.fixedDeltaTime;
 
