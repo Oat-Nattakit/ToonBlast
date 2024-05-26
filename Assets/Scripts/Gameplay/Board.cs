@@ -15,10 +15,7 @@ public class Board : MonoBehaviour
     private Node[,] _boardGame;
     public GameObject ParentBoard;
 
-
     public ArrayList boards = new ArrayList();
-
-   
 
     private void Update()
     {
@@ -28,7 +25,7 @@ public class Board : MonoBehaviour
             RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction);
 
             if (hit.collider != null && hit.collider.gameObject.GetComponent<Symbol>())
-            {              
+            {
                 Symbol symbol = hit.collider.gameObject.GetComponent<Symbol>();
                 this.SelectSymbols(symbol);
             }
@@ -49,10 +46,10 @@ public class Board : MonoBehaviour
                 symbols.transform.localPosition = position;
                 symbols.GetComponent<Symbol>().SetIndicies(x, y);
                 symbols.name = "[" + x + "," + y + "]";
-                this._boardGame[x, y] = new Node(true, symbols);       
+                this._boardGame[x, y] = new Node(true, symbols);
             }
         }
-       
+
         this._findNerber();
         this._setBoardSize();
     }
@@ -62,80 +59,72 @@ public class Board : MonoBehaviour
         float boardSizeX = (this.BoardHight * this.spacingX);
         float boardSizeY = (this.BoardWidth * this.spacingY);
         this.ParentBoard.transform.localPosition = new Vector2(-boardSizeX / 2, -boardSizeY / 2);
-        // this.boardGameGo.GetComponent<RectTransform>().sizeDelta = new Vector2(boardSizeX, boardSizeY);
+    }
 
-    }   
     #region match
-   
-    #endregion
-
-    #region swapping
     public void SelectSymbols(Symbol _symbol)
-    {       
+    {
         List<Symbol> symbolMatch = new List<Symbol>();
         this._collectSymbolMatch(_symbol, symbolMatch);
         this.RemoveAndRefill(symbolMatch);
 
         this._findNerber();
     }
-    /*
-    private void SwapSymbol(Symbol _select, Symbol _target)
+
+    private void _findNerber()
     {
-        if (!IsAdjacent(_select, _target))
+        for (int x = 0; x < this.BoardWidth; x++)
         {
-            return;
+            for (int y = 0; y < this.BoardHight; y++)
+            {
+                if (this._boardGame[x, y].isUsable)
+                {
+                    Symbol symbols = this._boardGame[x, y].symbol.GetComponent<Symbol>();
+                    this.findMatching(symbols, new Vector2Int(0, 1));
+                    this.findMatching(symbols, new Vector2Int(0, -1));
+                    this.findMatching(symbols, new Vector2Int(1, 0));
+                    this.findMatching(symbols, new Vector2Int(-1, 0));
+                }
+            }
         }
-        this.DoSwap(_select, _target);
-        this.isSymbolMove = true;
-
-        StartCoroutine(this.ProcessMatche(_select, _target));
-
     }
 
-    private void DoSwap(Symbol _currentSymbol, Symbol _targetSymbol)
+    private void findMatching(Symbol symbol, Vector2Int pos)
     {
-        GameObject temp = this._boardGame[_currentSymbol.xIndex, _currentSymbol.yIndex].symbol;
-        this._boardGame[_currentSymbol.xIndex, _currentSymbol.yIndex].symbol = this._boardGame[_targetSymbol.xIndex, _targetSymbol.yIndex].symbol;
-        this._boardGame[_targetSymbol.xIndex, _targetSymbol.yIndex].symbol = temp;
-
-        int tempX = _currentSymbol.xIndex;
-        int tempY = _currentSymbol.yIndex;
-
-        _currentSymbol.xIndex = _targetSymbol.xIndex;
-        _currentSymbol.yIndex = _targetSymbol.yIndex;
-
-        _targetSymbol.xIndex = tempX;
-        _targetSymbol.yIndex = tempY;
-
-        _currentSymbol.MovaToTarget(this._boardGame[_targetSymbol.xIndex, _targetSymbol.yIndex].symbol.transform.localPosition);
-        _targetSymbol.MovaToTarget(this._boardGame[_currentSymbol.xIndex, _currentSymbol.yIndex].symbol.transform.localPosition);
-    }
-
-    private IEnumerator ProcessMatche(Symbol _currentSymbol, Symbol _targetSymbol)
-    {
-        yield return new WaitForSeconds(0.2f);
-        bool hasMatch = CheckBoard(true);
-
-
-
-
-        if (!hasMatch)
+        SymbolColor color = symbol.ColorSymbol;
+        int xIndex = symbol.xIndex + pos.x;
+        int yIndex = symbol.yIndex + pos.y;
+        if (xIndex >= 0 && xIndex < BoardWidth && yIndex >= 0 && yIndex < BoardHight)
         {
-            this.DoSwap(_currentSymbol, _targetSymbol);
+
+            Symbol symbolNear = this._boardGame[xIndex, yIndex].symbol.GetComponent<Symbol>();
+            if (symbolNear.ColorSymbol == color)
+            {
+                symbol.currenMatch.Add(symbolNear);
+            }
         }
 
-        this.isSymbolMove = false;
-
     }
 
-    private bool IsAdjacent(Symbol _currentSymbol, Symbol _targetSymbol)
+    private void _collectSymbolMatch(Symbol symbol, List<Symbol> symbolMatch)
     {
-        return Mathf.Abs(_currentSymbol.xIndex - _targetSymbol.xIndex) + Mathf.Abs(_currentSymbol.yIndex - _targetSymbol.yIndex) == 1;
+        if (symbol.currenMatch.Count > 0)
+        {
+            symbolMatch.Add(symbol);
+            foreach (Symbol item in symbol.currenMatch)
+            {
+                var a = symbolMatch.Find((sym) => sym == item);
+                if (a == null)
+                {
+                    symbolMatch.Add(item);
+                    this._collectSymbolMatch(item, symbolMatch);
+                }
+            }
+        }
     }
-    */
     #endregion
 
-    #region remove
+    #region remove and refill
     private void RemoveAndRefill(List<Symbol> symbolRemove)
     {
         foreach (Symbol symbol in symbolRemove)
@@ -195,7 +184,7 @@ public class Board : MonoBehaviour
         GameObject newSymbol = Instantiate(this.symbolPrefabs[randomValue], this.ParentBoard.transform);
         Symbol sym = newSymbol.GetComponent<Symbol>();
         sym.transform.localPosition = new Vector2((x * spacingX), ((this.BoardHight * spacingY) / 2) + ((index) * spacingY));
-        sym.GetComponent<Symbol>().SetIndicies(x, index);
+        sym.SetIndicies(x, index);
         this._boardGame[x, index] = new Node(true, newSymbol);
         Vector3 targetPos = new Vector3(newSymbol.transform.localPosition.x, (sym.yIndex * spacingY), newSymbol.transform.localPosition.z);
         newSymbol.GetComponent<Symbol>().MovaToTarget(targetPos);
@@ -214,66 +203,4 @@ public class Board : MonoBehaviour
         return lowerNull;
     }
     #endregion
-
-    #region nerberMatch
-
-    private void _findNerber()
-    {
-        for (int x = 0; x < this.BoardWidth; x++)
-        {
-            for (int y = 0; y < this.BoardHight; y++)
-            {
-                if (this._boardGame[x, y].isUsable)
-                {
-                    Symbol symbols = this._boardGame[x, y].symbol.GetComponent<Symbol>();
-                    this.findMatching(symbols, new Vector2Int(0, 1));
-                    this.findMatching(symbols, new Vector2Int(0, -1));
-                    this.findMatching(symbols, new Vector2Int(1, 0));
-                    this.findMatching(symbols, new Vector2Int(-1, 0));
-                }
-            }
-        }
-    }
-
-    private void findMatching(Symbol symbol, Vector2Int pos)
-    {
-        SymbolColor color = symbol.ColorSymbol;
-        int xIndex = symbol.xIndex + pos.x;
-        int yIndex = symbol.yIndex + pos.y;
-        if (xIndex >= 0 && xIndex < BoardWidth && yIndex >= 0 && yIndex < BoardHight)
-        {
-
-            Symbol symbolNear = this._boardGame[xIndex, yIndex].symbol.GetComponent<Symbol>();
-            if (!symbolNear.isMatch && symbolNear.ColorSymbol == color)
-            {
-                symbol.currenMatch.Add(symbolNear);
-            }
-        }
-
-    }
-
-    private void _collectSymbolMatch(Symbol symbol, List<Symbol> symbolMatch)
-    {
-        if (symbol.currenMatch.Count > 0)
-        {
-            symbolMatch.Add(symbol);
-            foreach (Symbol item in symbol.currenMatch)
-            {
-                var a = symbolMatch.Find((sym) => sym == item);
-                if (a == null)
-                {
-                    symbolMatch.Add(item);
-                    this._collectSymbolMatch(item, symbolMatch);
-                }
-            }
-        }
-    }
-    #endregion
-
-}
-
-public class MatchResult
-{
-    public List<Symbol> connectSymbols;
-    public MatchDirection direction;
 }

@@ -16,22 +16,24 @@ public class GameManager : MonoBehaviour
     {
         if (instance == null)
         {
-            instance = this; 
+            instance = this;
         }
     }
 
     void Start()
     {
         this._uiManager.InitUI();
-        this._initBtnStart();         
+        this._gameplay.Init();
+        this._initBtnStart();
     }
 
     private void _initBtnStart()
     {
         var startBtn = this._uiManager.btnStart;
-        startBtn.onClick.AddListener(() => {
+        startBtn.onClick.AddListener(() =>
+        {
             this._uiManager.HidePanelStart(true);
-           this._gameplay.Init();
+
         });
     }
 }

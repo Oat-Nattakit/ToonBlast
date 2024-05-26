@@ -7,18 +7,14 @@ using UnityEngine.UI;
 public class Symbol : MonoBehaviour
 {
     [SerializeField] private Image symbolImage;
-    [SerializeField] private Image symbolSpecial;
-
-    public Image symbolImageObj { get => this.symbolImage; }
+    [SerializeField] private Image symbolSpecial;    
 
     [SerializeField] private SymbolType Type = SymbolType.Normal;
-
     [SerializeField] private SymbolColor symbolColor = SymbolColor.Red;
+
     public SymbolColor ColorSymbol { get => this.symbolColor; }
 
-    public int xIndex, yIndex;
-    public bool isMatch = false;
-    public bool isMoving;   
+    public int xIndex, yIndex; 
 
     public List<Symbol> currenMatch = new List<Symbol>();
 
@@ -46,8 +42,7 @@ public class Symbol : MonoBehaviour
     }
 
     private IEnumerator MoveCoroutine(Vector2 _targetPos)
-    {
-        this.isMoving = true;
+    {        
         float duration = 0.2f;
 
         Vector2 startPos = this.transform.localPosition;
@@ -62,10 +57,7 @@ public class Symbol : MonoBehaviour
             yield return null;
         }
         this.transform.localPosition = _targetPos;
-        isMatch = false;
     }
-
-
 
     private void _settingSymbolType(SymbolType type)
     {
