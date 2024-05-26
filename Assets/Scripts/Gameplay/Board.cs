@@ -1,9 +1,8 @@
-using Newtonsoft.Json;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UIElements;
+using static UnityEditor.Progress;
 
 public class Board : MonoBehaviour
 {
@@ -54,7 +53,6 @@ public class Board : MonoBehaviour
 
     public void InitBoard()
     {
-        this.DestorySymbole();
         this._boardGame = new Node[BoardWidth, BoardHight];
 
         for (int y = 0; y < BoardHight; y++)
@@ -68,23 +66,12 @@ public class Board : MonoBehaviour
                 symbols.GetComponent<Symbol>().SetIndicies(x, y);
                 symbols.name = "[" + x + "," + y + "]";
                 this._boardGame[x, y] = new Node(true, symbols);
-                this.symbolsDestory.Add(symbols);           
+                this.symbolsDestory.Add(symbols);
             }
         }
 
         //CheckBoard(false);
-    }
-
-    private void DestorySymbole()
-    {
-        if (this.symbolsDestory != null)
-        {
-            foreach (GameObject symbol in this.symbolsDestory)
-            {
-                Destroy(symbol);
-            }
-            this.symbolsDestory.Clear();
-        }
+        this._findNerber();
     }
 
     public bool CheckBoard(bool _takeAction)
@@ -323,7 +310,7 @@ public class Board : MonoBehaviour
     #region swapping
     public void SelectSymbols(Symbol _symbol)
     {
-        if (this.selectSymbol == null)
+        /*if (this.selectSymbol == null)
         {
             selectSymbol = _symbol;
         }
@@ -335,7 +322,10 @@ public class Board : MonoBehaviour
         {
             this.SwapSymbol(this.selectSymbol, _symbol);
             this.selectSymbol = null;
-        }
+        }*/
+        List<Symbol> symbolMatch = new List<Symbol>();
+        this.selecttoRemove(_symbol, symbolMatch);
+        this.RemoveAndRefill(symbolMatch);
     }
 
     private void SwapSymbol(Symbol _select, Symbol _target)
@@ -393,7 +383,7 @@ public class Board : MonoBehaviour
     }
     #endregion
 
-    #region 
+    #region remove
     private void RemoveAndRefill(List<Symbol> symbolRemove)
     {
         foreach (Symbol symbol in symbolRemove)
@@ -402,7 +392,7 @@ public class Board : MonoBehaviour
             int Yindex = symbol.yIndex;
 
             Destroy(symbol.gameObject);
-            symbol.symbolImageObj.color = Color.white;
+            //symbol.symbolImageObj.color = Color.white;
 
             this._boardGame[Xindex, Yindex] = new Node(true, null);
         }
@@ -415,7 +405,6 @@ public class Board : MonoBehaviour
                 {
                     this.RefillBoard(x, y);
                 }
-
             }
         }
     }
@@ -432,8 +421,8 @@ public class Board : MonoBehaviour
         {
             Symbol symbolAbove = this._boardGame[x, y + yOffset].symbol.GetComponent<Symbol>();
 
-            Vector3 targetPos = new Vector3((x * spacingX) - spacingX, (y * spacingY) - spacingY, 0);
-            Debug.LogWarning(targetPos);
+            Vector3 targetPos = new Vector3((x * spacingX), (y * spacingY), 0);
+
             symbolAbove.MovaToTarget(targetPos);
 
             symbolAbove.SetIndicies(x, y);
@@ -443,7 +432,8 @@ public class Board : MonoBehaviour
 
         if (y + yOffset == this.BoardHight)
         {
-            this.SpawnSymbolAtTop(x);
+            Debug.LogWarning(x);
+           // this.SpawnSymbolAtTop(x);
         }
     }
 
@@ -475,6 +465,66 @@ public class Board : MonoBehaviour
         }
         return lowerNull;
     }
+    #endregion
+
+    #region nerberMatch
+
+    private void _findNerber()
+    {
+        for (int x = 0; x < this.BoardWidth; x++)
+        {
+            for (int y = 0; y < this.BoardHight; y++)
+            {
+                if (this._boardGame[x, y].isUsable)
+                {
+                    Symbol symbols = this._boardGame[x, y].symbol.GetComponent<Symbol>();
+
+                    this.findMatching(symbols, new Vector2Int(0, 1));
+                    this.findMatching(symbols, new Vector2Int(0, -1));
+                    this.findMatching(symbols, new Vector2Int(1, 0));
+                    this.findMatching(symbols, new Vector2Int(-1, 0));
+
+                }
+            }
+        }
+    }
+
+    private void findMatching(Symbol symbol, Vector2Int pos)
+    {
+        SymbolColor color = symbol.ColorSymbol;
+        int xIndex = symbol.xIndex + pos.x;
+        int yIndex = symbol.yIndex + pos.y;
+        if (xIndex >= 0 && xIndex < BoardWidth && yIndex >= 0 && yIndex < BoardHight)
+        {
+
+            Symbol symbolNear = this._boardGame[xIndex, yIndex].symbol.GetComponent<Symbol>();
+            if (!symbolNear.isMatch && symbolNear.ColorSymbol == color)
+            {
+                symbol.currenMatch.Add(symbolNear);
+            }
+        }
+
+
+    }
+
+    private void selecttoRemove(Symbol symbol, List<Symbol> symbolMatch)
+    {
+        if (symbol.currenMatch.Count > 0)
+        {
+            symbolMatch.Add(symbol);
+            foreach (Symbol item in symbol.currenMatch)
+            {
+                var a = symbolMatch.Find((sym) => sym == item);
+                if (a == null)
+                {
+                    symbolMatch.Add(item);
+                    this.selecttoRemove(item, symbolMatch);
+                }
+            }
+        }
+    }
+
+
     #endregion
 }
 

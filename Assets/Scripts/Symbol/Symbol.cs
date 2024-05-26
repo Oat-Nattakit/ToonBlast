@@ -21,6 +21,8 @@ public class Symbol : MonoBehaviour
     public bool isMoving;
     private Vector2 currPos, targetPos;
 
+    public List<Symbol> currenMatch = new List<Symbol>();
+
     public Symbol(int x, int y)
     {
         this.xIndex = x;
