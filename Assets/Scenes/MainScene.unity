@@ -798,6 +798,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _board: {fileID: 1650777758}
+  BoardWidth: 8
+  BoardHight: 8
+  spacingX: 101
+  spacingY: 101
+  symbolPrefabs:
+  - {fileID: 8961304934310255268, guid: da7915272ff3b014da017d18c565aad3, type: 3}
+  - {fileID: 8961304934310255268, guid: 255e5c468c091014f99a7c8a6c432218, type: 3}
+  - {fileID: 8961304934310255268, guid: 6257de3f3cb57d146a2679e344529225, type: 3}
+  - {fileID: 8961304934310255268, guid: 7ee3e58def1464e4bb86454dff13e704, type: 3}
+  ParentBoard: {fileID: 759443449}
 --- !u!1 &1830152243
 GameObject:
   m_ObjectHideFlags: 0

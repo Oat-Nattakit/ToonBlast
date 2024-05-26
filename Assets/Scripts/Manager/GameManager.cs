@@ -23,7 +23,7 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         this._uiManager.InitUI();
-        this._gameplay.Init();
+
         this._initBtnStart();
     }
 
@@ -33,7 +33,7 @@ public class GameManager : MonoBehaviour
         startBtn.onClick.AddListener(() =>
         {
             this._uiManager.HidePanelStart(true);
-
+            this._gameplay.Init();
         });
     }
 }

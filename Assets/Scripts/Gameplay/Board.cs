@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Board : MonoBehaviour
 {
-    public int BoardWidth = 8;
+   /* public int BoardWidth = 8;
     public int BoardHight = 8;
 
     public int spacingX = 0;
@@ -203,4 +203,5 @@ public class Board : MonoBehaviour
         return lowerNull;
     }
     #endregion
+*/
 }
