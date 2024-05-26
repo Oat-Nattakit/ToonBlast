@@ -12,6 +12,8 @@ public class Symbol : MonoBehaviour
     [SerializeField] private SymbolType Type = SymbolType.Normal;
     [SerializeField] private SymbolColor symbolColor = SymbolColor.Red;
 
+    public Image symbolImageObj { get => this.symbolImage; }
+
     public SymbolColor ColorSymbol { get => this.symbolColor; }
 
     public int xIndex, yIndex; 

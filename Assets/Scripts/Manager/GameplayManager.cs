@@ -20,7 +20,7 @@ public class GameplayManager : MonoBehaviour
     public void Init()
     {
         this.InitBoard();
-    }  
+    }
 
     private void Update()
     {
@@ -71,6 +71,7 @@ public class GameplayManager : MonoBehaviour
     {
         List<Symbol> symbolMatch = new List<Symbol>();
         this._collectSymbolMatch(_symbol, symbolMatch);
+        this._checkConditionCreateSpecial(symbolMatch);
         this.RemoveAndRefill(symbolMatch);
 
         this._findNerber();
@@ -118,10 +119,9 @@ public class GameplayManager : MonoBehaviour
             symbolMatch.Add(symbol);
             foreach (Symbol item in symbol.currenMatch)
             {
-                var a = symbolMatch.Find((sym) => sym == item);
-                if (a == null)
-                {
-                    symbolMatch.Add(item);
+                var findSymbol = symbolMatch.Find((sym) => sym == item);                
+                if (findSymbol == null)
+                {                   
                     this._collectSymbolMatch(item, symbolMatch);
                 }
             }
@@ -206,6 +206,23 @@ public class GameplayManager : MonoBehaviour
             }
         }
         return lowerNull;
+    }
+    #endregion
+
+    #region Special 
+    private void _checkConditionCreateSpecial(List<Symbol> destoryList)
+    {
+        int limitBomb = 6;
+        int limitDisco = 10;
+        
+        if (destoryList.Count >= limitDisco)
+        {
+            Debug.LogWarning("get Dicgo");
+        }
+        else if (destoryList.Count >= limitBomb)
+        {
+            Debug.LogWarning("get Bomb");
+        }
     }
     #endregion
 }
