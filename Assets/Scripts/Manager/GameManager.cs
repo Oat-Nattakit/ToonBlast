@@ -4,24 +4,26 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    public static GameManager instance = null;
+
     [SerializeField] private UIManager _uiManager;
     public UIManager uiManager { get => this._uiManager; }
 
     [SerializeField] private GameplayManager _gameplay;
     public GameplayManager GameplayManager { get => this._gameplay; }
 
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this; 
+        }
+    }
 
     void Start()
     {
         this._uiManager.InitUI();
-        this._initBtnStart();
-         
-    }
-
-
-    void Update()
-    {
-    
+        this._initBtnStart();         
     }
 
     private void _initBtnStart()

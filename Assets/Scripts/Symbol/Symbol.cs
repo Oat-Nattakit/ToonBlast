@@ -18,8 +18,7 @@ public class Symbol : MonoBehaviour
 
     public int xIndex, yIndex;
     public bool isMatch = false;
-    public bool isMoving;
-    private Vector2 currPos, targetPos;
+    public bool isMoving;   
 
     public List<Symbol> currenMatch = new List<Symbol>();
 
@@ -41,15 +40,15 @@ public class Symbol : MonoBehaviour
         this._settingSymbolColor(symbolColor); 
     }
 
-    public void MovaToTarget(Vector2 _targetPos, float duration = 0.2f)
+    public void MovaToTarget(Vector2 _targetPos)
     {
-        StartCoroutine(this.MoveCoroutine(_targetPos, duration));
+        StartCoroutine(this.MoveCoroutine(_targetPos));
     }
 
-    private IEnumerator MoveCoroutine(Vector2 _targetPos,float duration= 0.2f)
+    private IEnumerator MoveCoroutine(Vector2 _targetPos)
     {
         this.isMoving = true;
-       
+        float duration = 0.2f;
 
         Vector2 startPos = this.transform.localPosition;
         float elaspedTime = 0f;

@@ -1,8 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using static UnityEditor.Progress;
 
 public class Board : MonoBehaviour
 {
@@ -69,8 +67,7 @@ public class Board : MonoBehaviour
                 this.symbolsDestory.Add(symbols);
             }
         }
-
-        //CheckBoard(false);
+       
         this._findNerber();
         this._setBoardSize();
     }
@@ -82,264 +79,21 @@ public class Board : MonoBehaviour
         this.boardGameGo.transform.localPosition = new Vector2(-boardSizeX / 2, -boardSizeY / 2);
         // this.boardGameGo.GetComponent<RectTransform>().sizeDelta = new Vector2(boardSizeX, boardSizeY);
 
-    }
-
-    public bool CheckBoard(bool _takeAction)
-    {
-
-        bool hasMatch = false;
-
-        List<Symbol> removeSymbol = new List<Symbol>();
-
-        foreach (Node node in this._boardGame)
-        {
-            if (node.symbol != null)
-            {
-                node.symbol.GetComponent<Symbol>().isMatch = false;
-            }
-        }
-
-        for (int x = 0; x < this.BoardWidth; x++)
-        {
-            for (int y = 0; y < this.BoardHight; y++)
-            {
-                if (this._boardGame[x, y].isUsable)
-                {
-                    Symbol symbols = this._boardGame[x, y].symbol.GetComponent<Symbol>();
-
-                    if (symbols.isMatch == false)
-                    {
-                        MatchResult matchResult = this.IsConnect(symbols);
-
-                        if (matchResult.connectSymbols.Count >= 2)
-                        {
-                            MatchResult superMatch = this.superMatch(matchResult);
-
-                            removeSymbol.AddRange(superMatch.connectSymbols);
-                            foreach (Symbol symbol in superMatch.connectSymbols)
-                            {
-                                symbol.isMatch = true;
-                            }
-                            hasMatch = true;
-                        }
-                    }
-                }
-            }
-        }
-        if (_takeAction)
-        {
-            foreach (Symbol symbol in removeSymbol)
-            {
-                symbol.isMatch = false;
-            }
-            this.RemoveAndRefill(removeSymbol);
-
-            if (this.CheckBoard(false))
-            {
-                CheckBoard(true);
-            }
-        }
-
-        return hasMatch;
-    }
-
-
-    public void checkConnect(bool _takeAction)
-    {
-        Symbol symbol = this.selectSymbol;
-        MatchResult matchResult = this.IsConnect(symbol);
-
-        if (matchResult.connectSymbols.Count >= 2)
-        {
-            MatchResult superMatch = this.superMatch(matchResult);
-
-            foreach (Symbol sym in superMatch.connectSymbols)
-            {
-                sym.symbolImageObj.color = Color.cyan;
-            }
-        }
-
-    }
-
-
+    }   
     #region match
-    private MatchResult superMatch(MatchResult matchSymbol)
-    {
-        if (matchSymbol.direction == MatchDirection.Horizontal || matchSymbol.direction == MatchDirection.LongHorozontal)
-        {
-            foreach (Symbol symbol in matchSymbol.connectSymbols)
-            {
-                List<Symbol> exConnect = new List<Symbol>();
-
-                CheckDirection(symbol, new Vector2Int(0, 1), exConnect);
-                CheckDirection(symbol, new Vector2Int(0, -1), exConnect);
-
-                if (exConnect.Count >= 2)
-                {
-                    Debug.LogWarning("super Hori");
-                    exConnect.AddRange(matchSymbol.connectSymbols);
-                    return new MatchResult
-                    {
-                        connectSymbols = exConnect,
-                        direction = MatchDirection.Super,
-                    };
-                }
-            }
-            return new MatchResult
-            {
-                connectSymbols = matchSymbol.connectSymbols,
-                direction = matchSymbol.direction,
-            };
-        }
-        else if (matchSymbol.direction == MatchDirection.Vertical || matchSymbol.direction == MatchDirection.LongVertical)
-        {
-            foreach (Symbol symbol in matchSymbol.connectSymbols)
-            {
-                List<Symbol> exConnect = new List<Symbol>();
-
-                CheckDirection(symbol, new Vector2Int(1, 0), exConnect);
-                CheckDirection(symbol, new Vector2Int(-1, 0), exConnect);
-
-                if (exConnect.Count >= 2)
-                {
-                    Debug.LogWarning("super Verti");
-                    exConnect.AddRange(matchSymbol.connectSymbols);
-                    return new MatchResult
-                    {
-                        connectSymbols = exConnect,
-                        direction = MatchDirection.Super,
-                    };
-                }
-            }
-            return new MatchResult
-            {
-                connectSymbols = matchSymbol.connectSymbols,
-                direction = matchSymbol.direction,
-            };
-        }
-        return null;
-    }
-
-    private MatchResult IsConnect(Symbol symbols)
-    {
-        List<Symbol> connectSymbol = new List<Symbol>();
-
-        SymbolColor type = symbols.ColorSymbol;
-
-        connectSymbol.Add(symbols);
-
-        this.CheckDirection(symbols, new Vector2Int(1, 0), connectSymbol);
-
-        this.CheckDirection(symbols, new Vector2Int(-1, 0), connectSymbol);
-
-        if (connectSymbol.Count == 2)
-        {
-            //Debug.LogWarning("Hori Map" + connectSymbol[0].ColorSymbol);
-            return new MatchResult
-            {
-                connectSymbols = connectSymbol,
-                direction = MatchDirection.Horizontal,
-            };
-        }
-        else if (connectSymbol.Count > 2)
-        {
-            //Debug.LogWarning("Hori Map Long" + connectSymbol[0].ColorSymbol);
-            return new MatchResult
-            {
-                connectSymbols = connectSymbol,
-                direction = MatchDirection.LongHorozontal,
-            };
-        }
-
-        /* connectSymbol.Clear();
-         connectSymbol.Add(symbols);*/
-
-        this.CheckDirection(symbols, new Vector2Int(0, 1), connectSymbol);
-        this.CheckDirection(symbols, new Vector2Int(0, -1), connectSymbol);
-
-        if (connectSymbol.Count == 2)
-        {
-            // Debug.LogWarning("Verti Map" + connectSymbol[0].ColorSymbol);
-            return new MatchResult
-            {
-                connectSymbols = connectSymbol,
-                direction = MatchDirection.Vertical,
-            };
-        }
-        else if (connectSymbol.Count > 2)
-        {
-            // Debug.LogWarning("Verti Map Long" + connectSymbol[0].ColorSymbol);
-            return new MatchResult
-            {
-                connectSymbols = connectSymbol,
-                direction = MatchDirection.LongVertical,
-            };
-        }
-        else
-        {
-            return new MatchResult
-            {
-                connectSymbols = connectSymbol,
-                direction = MatchDirection.None,
-            };
-        }
-    }
-
-    private void CheckDirection(Symbol symbol, Vector2Int direction, List<Symbol> connectSymbol)
-    {
-        SymbolColor color = symbol.ColorSymbol;
-
-        int x = symbol.xIndex + direction.x;
-        int y = symbol.yIndex + direction.y;
-
-        while (x >= 0 && x < BoardWidth && y >= 0 && y < BoardHight)
-        {
-            if (this._boardGame[x, y].isUsable)
-            {
-                Symbol symbolNear = this._boardGame[x, y].symbol.GetComponent<Symbol>();
-
-                if (!symbolNear.isMatch && symbolNear.ColorSymbol == color)
-                {
-                    connectSymbol.Add(symbolNear);
-                    x += direction.x;
-                    y += direction.y;
-                }
-                else
-                {
-                    break;
-                }
-            }
-            else
-            {
-                break;
-            }
-        }
-    }
+   
     #endregion
 
     #region swapping
     public void SelectSymbols(Symbol _symbol)
-    {
-        /*if (this.selectSymbol == null)
-        {
-            selectSymbol = _symbol;
-        }
-        else if (this.selectSymbol == _symbol)
-        {
-            this.selectSymbol = null;
-        }
-        else if (this.selectSymbol != _symbol)
-        {
-            this.SwapSymbol(this.selectSymbol, _symbol);
-            this.selectSymbol = null;
-        }*/
+    {       
         List<Symbol> symbolMatch = new List<Symbol>();
-        this.selecttoRemove(_symbol, symbolMatch);
+        this._collectSymbolMatch(_symbol, symbolMatch);
         this.RemoveAndRefill(symbolMatch);
-        
+
         this._findNerber();
     }
-
+    /*
     private void SwapSymbol(Symbol _select, Symbol _target)
     {
         if (!IsAdjacent(_select, _target))
@@ -393,6 +147,7 @@ public class Board : MonoBehaviour
     {
         return Mathf.Abs(_currentSymbol.xIndex - _targetSymbol.xIndex) + Mathf.Abs(_currentSymbol.yIndex - _targetSymbol.yIndex) == 1;
     }
+    */
     #endregion
 
     #region remove
@@ -440,7 +195,7 @@ public class Board : MonoBehaviour
             symbolAbove.SetIndicies(x, y);
             this._boardGame[x, y] = this._boardGame[x, y + yOffset];
             this._boardGame[x, y + yOffset] = new Node(true, null);
-        }       
+        }
         if (y + yOffset == this.BoardHight)
         {
             this.SpawnSymbolAtTop(x);
@@ -454,12 +209,9 @@ public class Board : MonoBehaviour
         int randomValue = Random.Range(0, this.symbolPrefabs.Length);
         GameObject newSymbol = Instantiate(this.symbolPrefabs[randomValue], this.boardGameGo.transform);
         Symbol sym = newSymbol.GetComponent<Symbol>();
-
-        // Debug.LogWarning((this.BoardHight * spacingY) + ((index) * spacingY));
-        Debug.LogWarning(((locationToMove) * spacingY));
         sym.transform.localPosition = new Vector2((x * spacingX), ((this.BoardHight * spacingY) / 2) + ((index) * spacingY));
         sym.GetComponent<Symbol>().SetIndicies(x, index);
-        this._boardGame[x, index] = new Node(true, newSymbol);       
+        this._boardGame[x, index] = new Node(true, newSymbol);
         Vector3 targetPos = new Vector3(newSymbol.transform.localPosition.x, (sym.yIndex * spacingY), newSymbol.transform.localPosition.z);
         newSymbol.GetComponent<Symbol>().MovaToTarget(targetPos);
     }
@@ -468,9 +220,7 @@ public class Board : MonoBehaviour
     {
         int lowerNull = 99;
         for (int y = (this.BoardWidth - 1); y >= 0; y--)
-
         {
-            //Debug.LogWarning(x + " " + y);
             if (this._boardGame[x, y].symbol == null)
             {
                 lowerNull = y;
@@ -491,12 +241,10 @@ public class Board : MonoBehaviour
                 if (this._boardGame[x, y].isUsable)
                 {
                     Symbol symbols = this._boardGame[x, y].symbol.GetComponent<Symbol>();
-
                     this.findMatching(symbols, new Vector2Int(0, 1));
                     this.findMatching(symbols, new Vector2Int(0, -1));
                     this.findMatching(symbols, new Vector2Int(1, 0));
                     this.findMatching(symbols, new Vector2Int(-1, 0));
-
                 }
             }
         }
@@ -519,7 +267,7 @@ public class Board : MonoBehaviour
 
     }
 
-    private void selecttoRemove(Symbol symbol, List<Symbol> symbolMatch)
+    private void _collectSymbolMatch(Symbol symbol, List<Symbol> symbolMatch)
     {
         if (symbol.currenMatch.Count > 0)
         {
@@ -530,13 +278,11 @@ public class Board : MonoBehaviour
                 if (a == null)
                 {
                     symbolMatch.Add(item);
-                    this.selecttoRemove(item, symbolMatch);
+                    this._collectSymbolMatch(item, symbolMatch);
                 }
             }
         }
     }
-
-
     #endregion
 
 }
