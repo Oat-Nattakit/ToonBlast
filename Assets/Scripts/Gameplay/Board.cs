@@ -1,485 +1,203 @@
-using Newtonsoft.Json;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class Board : MonoBehaviour
 {
-
     public static Board Instance;
 
     public int BoardWidth = 8;
     public int BoardHight = 8;
 
-    public float spacingX = 0;
-    public float spacingY = 0;
+    public int spacingX = 0;
+    public int spacingY = 0;
 
     public GameObject[] symbolPrefabs;
 
-    private Node[,] _boardGame;
-    public GameObject boardGameGo;
-
-    public List<GameObject> symbolsDestory = new List<GameObject>();
-
-    [SerializeField] private Symbol selectSymbol;
-    [SerializeField] private bool isSymbolMove;
-
-    public ArrayList boards = new ArrayList();
+    public List<Symbol> tiles = new List<Symbol>();
+    public Transform[] spawnPoints;
+    private WaitForSeconds pacing = new WaitForSeconds(0.1f);
 
     private void Awake()
     {
         Instance = this;
     }
 
-    private void Update()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction);
-
-            if (hit.collider != null && hit.collider.gameObject.GetComponent<Symbol>())
-            {
-                if (this.isSymbolMove)
-                {
-                    return;
-                }
-                Symbol symbol = hit.collider.gameObject.GetComponent<Symbol>();
-                this.SelectSymbols(symbol);
-            }
-        }
-    }
-
     public void InitBoard()
     {
-        this.DestorySymbole();
-        this._boardGame = new Node[BoardWidth, BoardHight];
-
-        for (int y = 0; y < BoardHight; y++)
-        {
-            for (int x = 0; x < BoardWidth; x++)
-            {
-                Vector2 position = new Vector2(x * spacingX, y * spacingY);
-                int randomIndex = Random.Range(0, this.symbolPrefabs.Length);
-                GameObject symbols = Instantiate(this.symbolPrefabs[randomIndex], this.boardGameGo.transform);
-                symbols.transform.localPosition = position;
-                symbols.GetComponent<Symbol>().SetIndicies(x, y);
-                symbols.name = "[" + x + "," + y + "]";
-                this._boardGame[x, y] = new Node(true, symbols);
-                this.symbolsDestory.Add(symbols);           
-            }
-        }
-
-        //CheckBoard(false);
+        StartCoroutine(GenerateTiles());
     }
 
-    private void DestorySymbole()
+    public void Rocket(int y)
     {
-        if (this.symbolsDestory != null)
+        List<Symbol> rocketTiles = new List<Symbol>();
+        foreach (Transform child in spawnPoints[y])
         {
-            foreach (GameObject symbol in this.symbolsDestory)
-            {
-                Destroy(symbol);
-            }
-            this.symbolsDestory.Clear();
+            rocketTiles.Add(child.GetComponent<Symbol>());
+        }
+        foreach (Symbol tile in rocketTiles)
+        {
+            Destroy(tile.gameObject);
         }
     }
 
-    public bool CheckBoard(bool _takeAction)
+    public void Bomb(Vector2Int coordinates)
     {
+        //Check tiles around coordinates
+        //Add to a list
+        // Destroy them
+    }
 
-        bool hasMatch = false;
-
-        List<Symbol> removeSymbol = new List<Symbol>();
-
-        foreach (Node node in this._boardGame)
+    public void DiscoBall(SymbolColor tileType)
+    {
+        List<Symbol> discoTiles = new List<Symbol>();
+        foreach (Symbol tile in tiles)
         {
-            if (node.symbol != null)
+            if (tile.symbolData.type == tileType) discoTiles.Add(tile);
+        }
+
+        foreach (Symbol tile in discoTiles)
+        {
+            Destroy(tile);
+        }
+    }
+
+    internal void TileClicked(Symbol Symbol)
+    {
+        List<Symbol> interestingNeighbors = new List<Symbol>();
+        List<Symbol> furtherExamination = new List<Symbol>();
+        foreach (Symbol tile in tiles)
+        {
+            if (tile.validNeighbors.Contains(Symbol))
             {
-                node.symbol.GetComponent<Symbol>().isMatch = false;
+                interestingNeighbors.Add(tile);
+            }
+            else
+            {
+                furtherExamination.Add(tile);
             }
         }
 
-        for (int x = 0; x < this.BoardWidth; x++)
+        while (furtherExamination.Count > 0)
         {
-            for (int y = 0; y < this.BoardHight; y++)
+            Symbol checkingTile = furtherExamination[0];
+            furtherExamination.Remove(checkingTile);
+            bool addToInteresting = false;
+            foreach (Symbol tile in interestingNeighbors)
             {
-                if (this._boardGame[x, y].isUsable)
+                if (checkingTile.validNeighbors.Contains(tile))
                 {
-                    Symbol symbols = this._boardGame[x, y].symbol.GetComponent<Symbol>();
+                    addToInteresting = true;
+                    break;
+                }
 
-                    if (symbols.isMatch == false)
-                    {
-                        MatchResult matchResult = this.IsConnect(symbols);
+            }
+            if (addToInteresting) interestingNeighbors.Add(checkingTile);
+        }
+        StartCoroutine(CheckChain(Symbol, interestingNeighbors));
+    }
 
-                        if (matchResult.connectSymbols.Count >= 2)
-                        {
-                            MatchResult superMatch = this.superMatch(matchResult);
+    private IEnumerator CheckChain(Symbol Symbol, List<Symbol> directNeighbors)
+    {
+        GenerateTileAtColumn(Symbol.symbolData.coordinates);
+        tiles.Remove(Symbol);
+        Destroy(Symbol.gameObject);
+        foreach (Symbol tile in directNeighbors)
+        {
+            GenerateTileAtColumn(tile.symbolData.coordinates);
+            tiles.Remove(tile);
+            if (tile != null) Destroy(tile.gameObject);
+            //  yield return pacing;
+        }
+       // GameplayUIController.instance.LowerRemainingMoves();
+        yield return null;
+    }
 
-                            removeSymbol.AddRange(superMatch.connectSymbols);
-                            foreach (Symbol symbol in superMatch.connectSymbols)
-                            {
-                                symbol.isMatch = true;
-                            }
-                            hasMatch = true;
-                        }
-                    }
+    private IEnumerator ReassignCoordinates()
+    {
+        yield return new WaitForEndOfFrame();
+        foreach (Symbol tile in tiles)
+        {
+            int parentIndex = 0;
+            for (int i = 0; i < spawnPoints.Length; i++)
+            {
+                if (spawnPoints[i] == tile.transform.parent)
+                {
+                    parentIndex = i;
+                    break;
+                }
+            }
+            tile.symbolData.coordinates = new Vector2Int(parentIndex, tile.transform.GetSiblingIndex());
+            tile.SetName(tile.symbolData.coordinates);
+        }
+    }
+
+    private void GenerateTileAtColumn(Vector2Int coordinates)
+    {
+        GameObject tile = Instantiate(symbolPrefabs[0], spawnPoints[coordinates.x]);
+        int typeRandomized = UnityEngine.Random.Range(0, 4);
+        SymbolData tileData = new SymbolData(coordinates, (SymbolColor)typeRandomized);
+        tile.GetComponent<Symbol>().Initialize(tileData);
+       // tile.transform.localPosition = new Vector3(coordinates.x, -(coordinates.y * this.spacingY), 0);
+        tiles.Add(tile.GetComponent<Symbol>());
+        StartCoroutine(ReassignCoordinates());
+    }
+
+    private IEnumerator GenerateTiles()
+    {
+        for (int i = 0; i < this.BoardWidth; i++)
+        {
+            for (int j = 0; j < spawnPoints.Length; j++)
+            {
+                GameObject tile = Instantiate(symbolPrefabs[0], spawnPoints[j]);
+                Vector2Int coordinates = new Vector2Int(j, (i));
+                int typeRandomized = UnityEngine.Random.Range(0, 4);
+                SymbolData tileData = new SymbolData(coordinates, (SymbolColor)typeRandomized);
+                //tile.transform.localPosition = new Vector3(j, -(i * this.spacingY),0);
+                tile.GetComponent<Symbol>().Initialize(tileData);
+                tiles.Add(tile.GetComponent<Symbol>());
+                yield return pacing;
+            }
+        }
+        yield return null;
+    }
+
+    public List<Symbol> GetDirectNeighbors(Symbol t)
+    {
+        List<Symbol> neighbors = new List<Symbol>();
+        for (int i = -1; i <= 1; i++)
+        {
+            for (int j = -1; j <= 1; j++)
+            {
+                if (i == 0 && j == 0) continue;
+                if (Mathf.Abs(i) == 1 && Mathf.Abs(j) == 1) continue;
+                int checkX = t.symbolData.coordinates.x + j;
+                int checkY = t.symbolData.coordinates.y + i;
+                if (checkY <= 5 &&
+    checkX >= 0 &&
+    checkY >= 0 &&
+    checkX <= 4 &&
+    FindTileByCoordinates(new Vector2Int(checkX, checkY)).symbolData.type == t.symbolData.type
+    )
+                {
+                    neighbors.Add(FindTileByCoordinates(new Vector2Int(checkX, checkY)));
                 }
             }
         }
-        if (_takeAction)
-        {
-            foreach (Symbol symbol in removeSymbol)
-            {
-                symbol.isMatch = false;
-            }
-            this.RemoveAndRefill(removeSymbol);
-
-            if (this.CheckBoard(false))
-            {
-                CheckBoard(true);
-            }
-        }
-
-        return hasMatch;
+        return neighbors;
     }
 
-
-    public void checkConnect(bool _takeAction)
+    private Symbol FindTileByCoordinates(Vector2Int coordinates)
     {
-        Symbol symbol = this.selectSymbol;
-        MatchResult matchResult = this.IsConnect(symbol);
-
-        if (matchResult.connectSymbols.Count >= 2)
+        foreach (Symbol tile in tiles)
         {
-            MatchResult superMatch = this.superMatch(matchResult);
-
-            foreach (Symbol sym in superMatch.connectSymbols)
+            if (tile.symbolData.coordinates == coordinates)
             {
-                sym.symbolImageObj.color = Color.cyan;
+                return tile;
             }
-        }
-
-    }
-
-
-    #region match
-    private MatchResult superMatch(MatchResult matchSymbol)
-    {
-        if (matchSymbol.direction == MatchDirection.Horizontal || matchSymbol.direction == MatchDirection.LongHorozontal)
-        {
-            foreach (Symbol symbol in matchSymbol.connectSymbols)
-            {
-                List<Symbol> exConnect = new List<Symbol>();
-
-                CheckDirection(symbol, new Vector2Int(0, 1), exConnect);
-                CheckDirection(symbol, new Vector2Int(0, -1), exConnect);
-
-                if (exConnect.Count >= 2)
-                {
-                    Debug.LogWarning("super Hori");
-                    exConnect.AddRange(matchSymbol.connectSymbols);
-                    return new MatchResult
-                    {
-                        connectSymbols = exConnect,
-                        direction = MatchDirection.Super,
-                    };
-                }
-            }
-            return new MatchResult
-            {
-                connectSymbols = matchSymbol.connectSymbols,
-                direction = matchSymbol.direction,
-            };
-        }
-        else if (matchSymbol.direction == MatchDirection.Vertical || matchSymbol.direction == MatchDirection.LongVertical)
-        {
-            foreach (Symbol symbol in matchSymbol.connectSymbols)
-            {
-                List<Symbol> exConnect = new List<Symbol>();
-
-                CheckDirection(symbol, new Vector2Int(1, 0), exConnect);
-                CheckDirection(symbol, new Vector2Int(-1, 0), exConnect);
-
-                if (exConnect.Count >= 2)
-                {
-                    Debug.LogWarning("super Verti");
-                    exConnect.AddRange(matchSymbol.connectSymbols);
-                    return new MatchResult
-                    {
-                        connectSymbols = exConnect,
-                        direction = MatchDirection.Super,
-                    };
-                }
-            }
-            return new MatchResult
-            {
-                connectSymbols = matchSymbol.connectSymbols,
-                direction = matchSymbol.direction,
-            };
         }
         return null;
     }
 
-    private MatchResult IsConnect(Symbol symbols)
-    {
-        List<Symbol> connectSymbol = new List<Symbol>();
 
-        SymbolColor type = symbols.ColorSymbol;
-
-        connectSymbol.Add(symbols);
-
-        this.CheckDirection(symbols, new Vector2Int(1, 0), connectSymbol);
-
-        this.CheckDirection(symbols, new Vector2Int(-1, 0), connectSymbol);
-
-        if (connectSymbol.Count == 2)
-        {
-            //Debug.LogWarning("Hori Map" + connectSymbol[0].ColorSymbol);
-            return new MatchResult
-            {
-                connectSymbols = connectSymbol,
-                direction = MatchDirection.Horizontal,
-            };
-        }
-        else if (connectSymbol.Count > 2)
-        {
-            //Debug.LogWarning("Hori Map Long" + connectSymbol[0].ColorSymbol);
-            return new MatchResult
-            {
-                connectSymbols = connectSymbol,
-                direction = MatchDirection.LongHorozontal,
-            };
-        }
-
-        /* connectSymbol.Clear();
-         connectSymbol.Add(symbols);*/
-
-        this.CheckDirection(symbols, new Vector2Int(0, 1), connectSymbol);
-        this.CheckDirection(symbols, new Vector2Int(0, -1), connectSymbol);
-
-        if (connectSymbol.Count == 2)
-        {
-            // Debug.LogWarning("Verti Map" + connectSymbol[0].ColorSymbol);
-            return new MatchResult
-            {
-                connectSymbols = connectSymbol,
-                direction = MatchDirection.Vertical,
-            };
-        }
-        else if (connectSymbol.Count > 2)
-        {
-            // Debug.LogWarning("Verti Map Long" + connectSymbol[0].ColorSymbol);
-            return new MatchResult
-            {
-                connectSymbols = connectSymbol,
-                direction = MatchDirection.LongVertical,
-            };
-        }
-        else
-        {
-            return new MatchResult
-            {
-                connectSymbols = connectSymbol,
-                direction = MatchDirection.None,
-            };
-        }
-    }
-
-    private void CheckDirection(Symbol symbol, Vector2Int direction, List<Symbol> connectSymbol)
-    {
-        SymbolColor color = symbol.ColorSymbol;
-
-        int x = symbol.xIndex + direction.x;
-        int y = symbol.yIndex + direction.y;
-
-        while (x >= 0 && x < BoardWidth && y >= 0 && y < BoardHight)
-        {
-            if (this._boardGame[x, y].isUsable)
-            {
-                Symbol symbolNear = this._boardGame[x, y].symbol.GetComponent<Symbol>();
-
-                if (!symbolNear.isMatch && symbolNear.ColorSymbol == color)
-                {
-                    connectSymbol.Add(symbolNear);
-                    x += direction.x;
-                    y += direction.y;
-                }
-                else
-                {
-                    break;
-                }
-            }
-            else
-            {
-                break;
-            }
-        }
-    }
-    #endregion
-
-    #region swapping
-    public void SelectSymbols(Symbol _symbol)
-    {
-        if (this.selectSymbol == null)
-        {
-            selectSymbol = _symbol;
-        }
-        else if (this.selectSymbol == _symbol)
-        {
-            this.selectSymbol = null;
-        }
-        else if (this.selectSymbol != _symbol)
-        {
-            this.SwapSymbol(this.selectSymbol, _symbol);
-            this.selectSymbol = null;
-        }
-    }
-
-    private void SwapSymbol(Symbol _select, Symbol _target)
-    {
-        if (!IsAdjacent(_select, _target))
-        {
-            return;
-        }
-        this.DoSwap(_select, _target);
-        this.isSymbolMove = true;
-
-        StartCoroutine(this.ProcessMatche(_select, _target));
-
-    }
-
-    private void DoSwap(Symbol _currentSymbol, Symbol _targetSymbol)
-    {
-        GameObject temp = this._boardGame[_currentSymbol.xIndex, _currentSymbol.yIndex].symbol;
-        this._boardGame[_currentSymbol.xIndex, _currentSymbol.yIndex].symbol = this._boardGame[_targetSymbol.xIndex, _targetSymbol.yIndex].symbol;
-        this._boardGame[_targetSymbol.xIndex, _targetSymbol.yIndex].symbol = temp;
-
-        int tempX = _currentSymbol.xIndex;
-        int tempY = _currentSymbol.yIndex;
-
-        _currentSymbol.xIndex = _targetSymbol.xIndex;
-        _currentSymbol.yIndex = _targetSymbol.yIndex;
-
-        _targetSymbol.xIndex = tempX;
-        _targetSymbol.yIndex = tempY;
-
-        _currentSymbol.MovaToTarget(this._boardGame[_targetSymbol.xIndex, _targetSymbol.yIndex].symbol.transform.localPosition);
-        _targetSymbol.MovaToTarget(this._boardGame[_currentSymbol.xIndex, _currentSymbol.yIndex].symbol.transform.localPosition);
-    }
-
-    private IEnumerator ProcessMatche(Symbol _currentSymbol, Symbol _targetSymbol)
-    {
-        yield return new WaitForSeconds(0.2f);
-        bool hasMatch = CheckBoard(true);
-
-
-
-
-        if (!hasMatch)
-        {
-            this.DoSwap(_currentSymbol, _targetSymbol);
-        }
-
-        this.isSymbolMove = false;
-
-    }
-
-    private bool IsAdjacent(Symbol _currentSymbol, Symbol _targetSymbol)
-    {
-        return Mathf.Abs(_currentSymbol.xIndex - _targetSymbol.xIndex) + Mathf.Abs(_currentSymbol.yIndex - _targetSymbol.yIndex) == 1;
-    }
-    #endregion
-
-    #region 
-    private void RemoveAndRefill(List<Symbol> symbolRemove)
-    {
-        foreach (Symbol symbol in symbolRemove)
-        {
-            int Xindex = symbol.xIndex;
-            int Yindex = symbol.yIndex;
-
-            Destroy(symbol.gameObject);
-            symbol.symbolImageObj.color = Color.white;
-
-            this._boardGame[Xindex, Yindex] = new Node(true, null);
-        }
-
-        for (int x = 0; x < this.BoardWidth; x++)
-        {
-            for (int y = 0; y < this.BoardHight; y++)
-            {
-                if (this._boardGame[x, y].symbol == null)
-                {
-                    this.RefillBoard(x, y);
-                }
-
-            }
-        }
-    }
-
-    private void RefillBoard(int x, int y)
-    {
-        int yOffset = 1;
-        while ((y + yOffset < this.BoardHight) && (this._boardGame[x, y + yOffset].symbol == null))
-        {
-            yOffset++;
-        }
-
-        if ((y + yOffset < this.BoardHight) && (this._boardGame[x, y + yOffset].symbol != null))
-        {
-            Symbol symbolAbove = this._boardGame[x, y + yOffset].symbol.GetComponent<Symbol>();
-
-            Vector3 targetPos = new Vector3((x * spacingX) - spacingX, (y * spacingY) - spacingY, 0);
-            Debug.LogWarning(targetPos);
-            symbolAbove.MovaToTarget(targetPos);
-
-            symbolAbove.SetIndicies(x, y);
-            this._boardGame[x, y] = this._boardGame[x, y + yOffset];
-            this._boardGame[x, y + yOffset] = new Node(true, null);
-        }
-
-        if (y + yOffset == this.BoardHight)
-        {
-            this.SpawnSymbolAtTop(x);
-        }
-    }
-
-    private void SpawnSymbolAtTop(int x)
-    {
-        int index = this.FindIndexOfLowerNull(x);
-        int locationToMove = this.BoardHight - index;
-
-        int randomValue = Random.Range(0, this.symbolPrefabs.Length);
-        GameObject newSymbol = Instantiate(this.symbolPrefabs[randomValue], this.boardGameGo.transform);
-        newSymbol.transform.localPosition = new Vector2(x - spacingX, this.BoardHight - spacingY);
-        newSymbol.GetComponent<Symbol>().SetIndicies(x, index);
-
-        this._boardGame[x, index] = new Node(true, newSymbol);
-
-        Vector3 targetPos = new Vector3(newSymbol.transform.localPosition.x, newSymbol.transform.localPosition.y - locationToMove, newSymbol.transform.localPosition.z);
-        newSymbol.GetComponent<Symbol>().MovaToTarget(targetPos);
-    }
-
-    private int FindIndexOfLowerNull(int x)
-    {
-        int lowerNull = 99;
-        for (int y = 7; y >= 0; y++)
-        {
-            if (this._boardGame[x, y].symbol == null)
-            {
-                lowerNull = y;
-            }
-        }
-        return lowerNull;
-    }
-    #endregion
-}
-
-public class MatchResult
-{
-    public List<Symbol> connectSymbols;
-    public MatchDirection direction;
 }

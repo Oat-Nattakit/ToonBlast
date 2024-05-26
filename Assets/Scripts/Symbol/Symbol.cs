@@ -21,47 +21,66 @@ public class Symbol : MonoBehaviour
     public bool isMoving;
     private Vector2 currPos, targetPos;
 
-    public Symbol(int x, int y)
+    public SymbolData symbolData;
+    public List<Symbol> validNeighbors = new List<Symbol>();
+
+    /*public Symbol(int x, int y)
     {
         this.xIndex = x;
         this.yIndex = y;
-    }
+    }*/
 
-    public void SetIndicies(int x, int y)
-    {
-        this.xIndex = x;
-        this.yIndex = y;
-    }  
-
-    private void Start()
+   /* private void Start()
     {
         this._settingSymbolType(Type);
-        this._settingSymbolColor(symbolColor); 
+        this._settingSymbolColor(symbolColor);
+        this.Initialize();
+    }*/
+
+    public void Initialize(SymbolData tile)
+    {
+        this.symbolData = tile;
+        SetName(tile.coordinates);
+       /* symbolSpriteRenderer.sprite = TileManager.instance.tileSymbolSprites[(int)tile.type];
+        backgroundSpriteRenderer.sprite = TileManager.instance.tileBackgroundSprites[(int)tile.type];*/
+
+        this._settingSymbolType(Type);
+        this._settingSymbolColor(symbolColor);
+
+        StartCoroutine(CheckNeighborsDelayed());
     }
 
-    public void MovaToTarget(Vector2 _targetPos)
+    private IEnumerator CheckNeighborsDelayed()
     {
-        StartCoroutine(this.MoveCoroutine(_targetPos));
+        yield return new WaitForSeconds(1);
+        validNeighbors = Board.Instance.GetDirectNeighbors(this);
     }
 
-    private IEnumerator MoveCoroutine(Vector2 _targetPos)
+    public void SetName(Vector2Int tileCoordinates)
     {
-        this.isMoving = true;
-        float duration = 0.2f;
+        name = string.Format("Tile: {0}, {1}", symbolData.coordinates.x.ToString(), symbolData.coordinates.y.ToString());
+        StartCoroutine(CheckNeighborsDelayed());
+    }
 
-        Vector2 startPos = this.transform.localPosition;
-        float elaspedTime = 0f;
+    private void OnMouseDown()
+    {
+        Board.Instance.TileClicked(this);
+    }
 
-        while (elaspedTime < duration)
+    private void OnDestroy()
+    {
+        /*if (tile.coordinates.y <= 5)
         {
-            float t = elaspedTime / duration;
-            this.transform.localPosition = Vector2.Lerp(startPos, _targetPos, t);
-            elaspedTime += Time.fixedDeltaTime;
+            GameplayUIController.instance.OnTileDestroyed(tile.type);
+            MusicManager.instance.PlayTileSound(tile.type);
+        }*/
+    }
 
-            yield return null;
-        }
-        this.transform.localPosition = _targetPos;
-        isMatch = false;
+    private void OnCollisionEnter(Collision collision)
+    {
+        symbolData.coordinates = new Vector2Int(symbolData.coordinates.x, transform.GetSiblingIndex());
+        if (transform.GetSiblingIndex() > 5) Destroy(gameObject);
+        SetName(symbolData.coordinates);
     }
 
 
