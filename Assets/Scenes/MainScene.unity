@@ -688,10 +688,7 @@ MonoBehaviour:
   - {fileID: 8961304934310255268, guid: 255e5c468c091014f99a7c8a6c432218, type: 3}
   - {fileID: 8961304934310255268, guid: 6257de3f3cb57d146a2679e344529225, type: 3}
   - {fileID: 8961304934310255268, guid: 7ee3e58def1464e4bb86454dff13e704, type: 3}
-  boardGameGo: {fileID: 759443449}
-  symbolsDestory: []
-  selectSymbol: {fileID: 0}
-  isSymbolMove: 0
+  ParentBoard: {fileID: 759443449}
 --- !u!114 &1650777759
 MonoBehaviour:
   m_ObjectHideFlags: 0

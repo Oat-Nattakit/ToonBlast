@@ -4,9 +4,6 @@ using UnityEngine;
 
 public class Board : MonoBehaviour
 {
-
-    public static Board Instance;
-
     public int BoardWidth = 8;
     public int BoardHight = 8;
 
@@ -16,19 +13,12 @@ public class Board : MonoBehaviour
     public GameObject[] symbolPrefabs;
 
     private Node[,] _boardGame;
-    public GameObject boardGameGo;
+    public GameObject ParentBoard;
 
-    public List<GameObject> symbolsDestory = new List<GameObject>();
-
-    [SerializeField] private Symbol selectSymbol;
-    [SerializeField] private bool isSymbolMove;
 
     public ArrayList boards = new ArrayList();
 
-    private void Awake()
-    {
-        Instance = this;
-    }
+   
 
     private void Update()
     {
@@ -38,11 +28,7 @@ public class Board : MonoBehaviour
             RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction);
 
             if (hit.collider != null && hit.collider.gameObject.GetComponent<Symbol>())
-            {
-                if (this.isSymbolMove)
-                {
-                    return;
-                }
+            {              
                 Symbol symbol = hit.collider.gameObject.GetComponent<Symbol>();
                 this.SelectSymbols(symbol);
             }
@@ -59,12 +45,11 @@ public class Board : MonoBehaviour
             {
                 Vector2 position = new Vector2(x * spacingX, y * spacingY);
                 int randomIndex = Random.Range(0, this.symbolPrefabs.Length);
-                GameObject symbols = Instantiate(this.symbolPrefabs[randomIndex], this.boardGameGo.transform);
+                GameObject symbols = Instantiate(this.symbolPrefabs[randomIndex], this.ParentBoard.transform);
                 symbols.transform.localPosition = position;
                 symbols.GetComponent<Symbol>().SetIndicies(x, y);
                 symbols.name = "[" + x + "," + y + "]";
-                this._boardGame[x, y] = new Node(true, symbols);
-                this.symbolsDestory.Add(symbols);
+                this._boardGame[x, y] = new Node(true, symbols);       
             }
         }
        
@@ -76,7 +61,7 @@ public class Board : MonoBehaviour
     {
         float boardSizeX = (this.BoardHight * this.spacingX);
         float boardSizeY = (this.BoardWidth * this.spacingY);
-        this.boardGameGo.transform.localPosition = new Vector2(-boardSizeX / 2, -boardSizeY / 2);
+        this.ParentBoard.transform.localPosition = new Vector2(-boardSizeX / 2, -boardSizeY / 2);
         // this.boardGameGo.GetComponent<RectTransform>().sizeDelta = new Vector2(boardSizeX, boardSizeY);
 
     }   
@@ -207,7 +192,7 @@ public class Board : MonoBehaviour
         int index = this.FindIndexOfLowerNull(x);
         int locationToMove = this.BoardHight - index;
         int randomValue = Random.Range(0, this.symbolPrefabs.Length);
-        GameObject newSymbol = Instantiate(this.symbolPrefabs[randomValue], this.boardGameGo.transform);
+        GameObject newSymbol = Instantiate(this.symbolPrefabs[randomValue], this.ParentBoard.transform);
         Symbol sym = newSymbol.GetComponent<Symbol>();
         sym.transform.localPosition = new Vector2((x * spacingX), ((this.BoardHight * spacingY) / 2) + ((index) * spacingY));
         sym.GetComponent<Symbol>().SetIndicies(x, index);
