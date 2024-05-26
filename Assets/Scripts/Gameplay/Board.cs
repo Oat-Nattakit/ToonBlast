@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class Board : MonoBehaviour
 {
@@ -37,7 +39,6 @@ public class Board : MonoBehaviour
                     return;
                 }
                 Symbol symbol = hit.collider.gameObject.GetComponent<Symbol>();
-                 Debug.LogWarning("Hit  :"+ symbol.gameObject.name);
                 this.SelectSymbols(symbol);
             }
         }
@@ -64,7 +65,7 @@ public class Board : MonoBehaviour
         }
 
 
-        CheckBoard();
+        CheckBoard(false);
     }
 
     private void DestorySymbole()
@@ -79,12 +80,20 @@ public class Board : MonoBehaviour
         }
     }
 
-    public bool CheckBoard()
+    public bool CheckBoard(bool _takeAction)
     {
         // Debug.LogWarning("Check Board");
         bool hasMatch = false;
 
         List<Symbol> removeSymbol = new List<Symbol>();
+
+        foreach(Node node in this._boardGame)
+        {
+            if (node.symbol != null)
+            {
+                node.symbol.GetComponent<Symbol>().isMatch = false;
+            }
+        }
 
         for (int x = 0; x < this.BoardWidth; x++)
         {
@@ -96,12 +105,14 @@ public class Board : MonoBehaviour
 
                     if (!symbols.isMatch)
                     {
-                        //Debug.LogWarning(symbols.name);
                         MatchResult matchResult = this.IsConnect(symbols);
+
                         if (matchResult.connectSymbols.Count >= 2)
                         {
-                            removeSymbol.AddRange(matchResult.connectSymbols);
-                            foreach (Symbol symbol in matchResult.connectSymbols)
+                            MatchResult superMatch = this.superMatch(matchResult);
+
+                            removeSymbol.AddRange(superMatch.connectSymbols);
+                            foreach (Symbol symbol in superMatch.connectSymbols)
                             {
                                 symbol.isMatch = true;
                             }
@@ -111,7 +122,79 @@ public class Board : MonoBehaviour
                 }
             }
         }
+        if (_takeAction)
+        {
+            foreach (Symbol symbol in removeSymbol)
+            {
+                symbol.isMatch = false;
+            }
+            this.RemoveAndRefill(removeSymbol);
+
+            if (this.CheckBoard(false))
+            {
+                CheckBoard(true);
+            }
+        }
+
         return hasMatch;
+    }
+
+    #region match
+    private MatchResult superMatch(MatchResult matchSymbol)
+    {
+        if (matchSymbol.direction == MatchDirection.Horizontal || matchSymbol.direction == MatchDirection.LongHorozontal)
+        {
+            foreach (Symbol symbol in matchSymbol.connectSymbols)
+            {
+                List<Symbol> exConnect = new List<Symbol>();
+
+                CheckDirection(symbol, new Vector2Int(0, 1), exConnect);
+                CheckDirection(symbol, new Vector2Int(0, -1), exConnect);
+
+                if (exConnect.Count >= 2)
+                {
+                    Debug.LogWarning("super Hori");
+                    exConnect.AddRange(matchSymbol.connectSymbols);
+                    return new MatchResult
+                    {
+                        connectSymbols = exConnect,
+                        direction = MatchDirection.Super,
+                    };
+                }
+            }
+            return new MatchResult
+            {
+                connectSymbols = matchSymbol.connectSymbols,
+                direction = matchSymbol.direction,
+            };
+        }
+        else if (matchSymbol.direction == MatchDirection.Vertical || matchSymbol.direction == MatchDirection.LongVertical)
+        {
+            foreach (Symbol symbol in matchSymbol.connectSymbols)
+            {
+                List<Symbol> exConnect = new List<Symbol>();
+
+                CheckDirection(symbol, new Vector2Int(1, 0), exConnect);
+                CheckDirection(symbol, new Vector2Int(-1, 0), exConnect);
+
+                if (exConnect.Count >= 2)
+                {
+                    Debug.LogWarning("super Verti");
+                    exConnect.AddRange(matchSymbol.connectSymbols);
+                    return new MatchResult
+                    {
+                        connectSymbols = exConnect,
+                        direction = MatchDirection.Super,
+                    };
+                }
+            }
+            return new MatchResult
+            {
+                connectSymbols = matchSymbol.connectSymbols,
+                direction = matchSymbol.direction,
+            };
+        }
+        return null;
     }
 
     private MatchResult IsConnect(Symbol symbols)
@@ -208,6 +291,7 @@ public class Board : MonoBehaviour
             }
         }
     }
+    #endregion
 
     #region swapping
     public void SelectSymbols(Symbol _symbol)
@@ -262,8 +346,15 @@ public class Board : MonoBehaviour
     private IEnumerator ProcessMatche(Symbol _currentSymbol, Symbol _targetSymbol)
     {
         yield return new WaitForSeconds(0.2f);
-        bool hasMatch = CheckBoard();
-        if (!hasMatch)
+        bool hasMatch = CheckBoard(true);
+
+        /*if (CheckBoard())
+        {
+            
+        }
+
+       else*/
+        if(!hasMatch)
         {
             this.DoSwap(_currentSymbol, _targetSymbol);
         }
@@ -278,6 +369,89 @@ public class Board : MonoBehaviour
     }
     #endregion
 
+    #region 
+    private void RemoveAndRefill(List<Symbol> symbolRemove)
+    {
+        foreach (Symbol symbol in symbolRemove)
+        {
+            int Xindex = symbol.xIndex;
+            int Yindex = symbol.yIndex;
+
+            Destroy(symbol.gameObject);
+
+            this._boardGame[Xindex, Yindex] = new Node(true, null);
+        }
+
+        for (int x = 0; x < this.BoardWidth; x++)
+        {
+            for (int y = 0; y < this.BoardHight; y++)
+            {
+                if (this._boardGame[x, y].symbol == null)
+                {
+                    this.RefillBoard(x, y);
+                }
+
+            }
+        }
+    }
+
+    private void RefillBoard(int x, int y)
+    {
+        int yOffset = 1;
+        while ((y + yOffset < this.BoardHight) && (this._boardGame[x, y + yOffset].symbol == null))
+        {
+            yOffset++;
+        }
+
+        if ((y + yOffset < this.BoardHight) && (this._boardGame[x, y + yOffset].symbol != null))
+        {
+            Symbol symbolAbove = this._boardGame[x, y + yOffset].symbol.GetComponent<Symbol>();
+
+            Vector3 targetPos = new Vector3(x - spacingX, y - spacingY, symbolAbove.transform.localPosition.z);
+
+            symbolAbove.MovaToTarget(targetPos);
+
+            symbolAbove.SetIndicies(x, y);
+            this._boardGame[x, y] = this._boardGame[x, y + yOffset];
+            this._boardGame[x, y + yOffset] = new Node(true, null);
+        }
+
+        if (y + yOffset == this.BoardHight)
+        {
+            this.SpawnSymbolAtTop(x);
+        }
+    }
+
+    private void SpawnSymbolAtTop(int x)
+    {
+        int index = this.FindIndexOfLowerNull(x);
+        int locationToMove = this.BoardHight - index;
+
+        int randomValue = Random.Range(0, this.symbolPrefabs.Length);
+        GameObject newSymbol = Instantiate(this.symbolPrefabs[randomValue], this.boardGameGo.transform);
+        newSymbol.transform.localPosition = new Vector2(x - spacingX, this.BoardHight - spacingY);
+        newSymbol.GetComponent<Symbol>().SetIndicies(x,index);
+
+        this._boardGame[x, index] = new Node(true,newSymbol);
+
+        Vector3 targetPos = new Vector3(newSymbol.transform.localPosition.x,newSymbol.transform.localPosition.y - locationToMove,newSymbol.transform.localPosition.z);
+        newSymbol.GetComponent<Symbol>().MovaToTarget(targetPos);   
+    }
+
+    private int FindIndexOfLowerNull(int x)
+    {
+        int lowerNull = 99;
+        for(int y=7; y>= 0; y++)
+        {
+            if (this._boardGame[x,y].symbol == null) { 
+                lowerNull = y;
+            }
+        }
+        return lowerNull;
+    }
+
+
+    #endregion
 }
 
 public class MatchResult
