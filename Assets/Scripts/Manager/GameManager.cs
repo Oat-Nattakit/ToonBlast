@@ -12,12 +12,15 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameplayManager _gameplay;
     public GameplayManager GameplayManager { get => this._gameplay; }
 
+    [Header("Board Space")]
     public int BoardWidth = 8;
     public int BoardHight = 8;
 
+    [Header("Symbol size")]
     public int spacingX = 0;
     public int spacingY = 0;
 
+    [Header("Target Spawn Special")]
     public int LimitBomb = 0;
     public int LimitDisco = 0;
 
