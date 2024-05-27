@@ -78,9 +78,10 @@ public class GameplayManager : MonoBehaviour
         if (symbolMatch.Count > 0)
         {
             this.isMove = true;
+            Vector2Int refIndex = new Vector2Int(_symbol.xIndex,_symbol.yIndex);
             await this.RemoveSymbol.RemoveSymbolObject(symbolMatch);
             List<int> spawnPosx = await this.BoardGame.Refill();
-            await this.BoardGame.SpawnSymbolAddPosX(spawnPosx, special);
+            await this.BoardGame.SpawnSymbolAddPosX(refIndex, spawnPosx, special);
             await UniTask.Delay(100);
             this.FindNearberSymbol.FindNerberNormalMatch();
             this.isMove = false;

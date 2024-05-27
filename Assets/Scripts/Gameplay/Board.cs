@@ -2,6 +2,8 @@ using Cysharp.Threading.Tasks;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using UnityEngine;
 
 public class Board : MonoBehaviour
@@ -73,11 +75,6 @@ public class Board : MonoBehaviour
         }
         await UniTask.Delay(300);
         return spawPosX;
-        /* await UniTask.Delay(300);
-         foreach (var item in spawPosX)
-         {
-             this.SpawnSymbolAtTop(item);
-         }*/
     }
 
     private void RefillBoard(int x, int y, List<int> spawPosX)
@@ -102,49 +99,69 @@ public class Board : MonoBehaviour
         }
         if (y + yOffset == this._boardHight)
         {
-            //this.SpawnSymbolAtTop(x);
             spawPosX.Add(x);
         }
     }
 
-    public async UniTask SpawnSymbolAddPosX(List<int> spawPosX, SymbolSpecial special)
+    public async UniTask SpawnSymbolAddPosX(Vector2Int refIndex, List<int> spawPosX, SymbolSpecial special)
     {
+        List<Vector2Int> collectPos = new List<Vector2Int>();
+        List<GameObject> collectSym = new List<GameObject>();
         for (int i = 0; i < spawPosX.Count; i++)
         {
-            if (i == 0)
-            {
-                int randomIndex = this._RandomColorSymbol();
-                SymbolColor _color = (SymbolColor)randomIndex;
+            int index = this._FindIndexOfLowerNull(spawPosX[i]);
+            collectPos.Add(new Vector2Int(spawPosX[i], index));
 
+            int randomIndex = this._RandomColorSymbol();
+            SymbolColor _color = (SymbolColor)randomIndex;
+            this.SpawnSymbolAtTop(spawPosX[i], index, SymbolType.Normal, _color, collectSym);       
+        }
+        var min = collectPos.OrderBy(v => v.sqrMagnitude).First();
+        this._SetupSymboltype(min, collectSym, special);
+        collectSym.ForEach((symbol) =>
+        {
+            this.MoveSymbolToPosition(symbol);
+        });
+        await UniTask.Delay(200);
+    }
+
+    public void SpawnSymbolAtTop(int x, int index, SymbolType _type, SymbolColor _color, List<GameObject> collectSym)
+    {
+        GameObject newSymbol = Instantiate(this.symbolPrefabs, this.ParentBoard.transform);
+        Symbol symbols = newSymbol.GetComponent<Symbol>();
+        symbols.transform.localPosition = new Vector2((x * this._spacingX), ((this._boardHight * this._spacingY) / 2) + ((index) * this._spacingY));
+        symbols.SetIndicies(x, index);  
+        this._boardGame[x, index] = new Node(true, newSymbol);
+        collectSym.Add(newSymbol);       
+    }
+
+    private void _SetupSymboltype(Vector2Int target, List<GameObject> collectSym, SymbolSpecial special)
+    {
+        foreach (var item in collectSym)
+        {
+            Symbol symbols = item.GetComponent<Symbol>();
+
+            int randomIndex = this._RandomColorSymbol();
+            SymbolColor _color = (SymbolColor)randomIndex;
+            SymbolType _type = SymbolType.Normal;
+
+            if (symbols.xIndex == target.x && symbols.yIndex == target.y)
+            {
+                _type = special.SymbolType;
                 if (special.SymbolType == SymbolType.Disco)
                 {
                     _color = special.SymbolColor;
                 }
-                this.SpawnSymbolAtTop(spawPosX[i], special.SymbolType, _color);
             }
-            else
-            {
-                int randomIndex = this._RandomColorSymbol();
-                SymbolColor _color = (SymbolColor)randomIndex;
-                this.SpawnSymbolAtTop(spawPosX[i], SymbolType.Normal, _color);
-            }
+            symbols.InitSymbol(_type, _color);
+            string symName = _type == SymbolType.Normal ? _color.ToString() : _type.ToString();
+            symbols.name = "Symbol_" + symName;
         }
-        await UniTask.Delay(200);
-
     }
 
-    public void SpawnSymbolAtTop(int x, SymbolType _type, SymbolColor _color)
+    private void MoveSymbolToPosition(GameObject newSymbol)
     {
-        int index = this._FindIndexOfLowerNull(x);
-        int locationToMove = this._boardWidth - index;       
-        GameObject newSymbol = Instantiate(this.symbolPrefabs, this.ParentBoard.transform);
         Symbol symbols = newSymbol.GetComponent<Symbol>();
-        symbols.transform.localPosition = new Vector2((x * this._spacingX), ((this._boardHight * this._spacingY) / 2) + ((index) * this._spacingY));
-        symbols.SetIndicies(x, index);
-        symbols.InitSymbol(_type, _color);
-        string symName = _type == SymbolType.Normal ? _color.ToString() : _type.ToString();
-        symbols.name = "Symbol_" + symName;
-        this._boardGame[x, index] = new Node(true, newSymbol);
         Vector3 targetPos = new Vector3(newSymbol.transform.localPosition.x, (symbols.yIndex * this._spacingY), newSymbol.transform.localPosition.z);
         newSymbol.GetComponent<Symbol>().MovaToTarget(targetPos);
     }
