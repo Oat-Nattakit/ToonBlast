@@ -18,8 +18,6 @@ public class GameplayManager : MonoBehaviour
 
     private bool isMove = false;
 
-    public List<Symbol> showSymbolList = new List<Symbol>();
-
     public void Init()
     {
         this.BoardHight = GameManager.instance.BoardHight;
