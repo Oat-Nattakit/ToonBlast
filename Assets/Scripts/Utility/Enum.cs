@@ -13,13 +13,3 @@ public enum SymbolType
     Disco
 }
 
-public enum MatchDirection
-{
-    Vertical,
-    Horizontal,
-    LongVertical,
-    LongHorozontal,
-    Super,
-    None,
-}
-

@@ -15,8 +15,6 @@ public class Symbol : MonoBehaviour
     [SerializeField] private SymbolType _typeSymbol = SymbolType.Normal;
     [SerializeField] private SymbolColor _symbolColor = SymbolColor.Red;
 
-    public Image symbolImageObj { get => this.symbolImage; }
-
     public SymbolColor ColorSymbol { get => this._symbolColor; }
     public SymbolType TypeSymbol { get => this._typeSymbol; }
 
@@ -72,7 +70,7 @@ public class Symbol : MonoBehaviour
             case SymbolType.Bomb:
                 this.symbolSpecial.gameObject.SetActive(true);
                 this.symbolImage.color = Color.black;
-                this.symbolSpecial.color = Color.red;
+                this.symbolSpecial.color = new Color32(215, 83, 81, 255);
                 break;
             case SymbolType.Disco:
                 this.symbolSpecial.gameObject.SetActive(true);
