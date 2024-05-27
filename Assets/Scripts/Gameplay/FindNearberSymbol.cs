@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class FindNearberSymbol
+public class FindNearberSymbol : MonoBehaviour
 {
     private int BoardWidth = 0;
     private int BoardHight = 0;
@@ -20,10 +20,10 @@ public class FindNearberSymbol
         this.spacingX = GameManager.instance.spacingX;
         this.spacingY = GameManager.instance.spacingY;
 
-        this._boardGame = _board;   
+        this._boardGame = _board;
     }
 
-    public void _findNerber()
+    public void FindNerberMatch()
     {
         for (int x = 0; x < this.BoardWidth; x++)
         {

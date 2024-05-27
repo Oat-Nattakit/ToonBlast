@@ -54,4 +54,31 @@ public class Board : MonoBehaviour
         float boardSizeY = (this._boardWidth * this._spacingY);
         this.ParentBoard.transform.localPosition = new Vector2(-boardSizeX / 2, -boardSizeY / 2);
     }
+    
+    public void SpawnSymbolAtTop(int x)
+    {
+        int index = this.FindIndexOfLowerNull(x);
+        int locationToMove = this._boardWidth - index;
+        int randomValue = Random.Range(0, this.symbolPrefabs.Length);
+        GameObject newSymbol = Instantiate(this.symbolPrefabs[randomValue], this.ParentBoard.transform);
+        Symbol sym = newSymbol.GetComponent<Symbol>();
+        sym.transform.localPosition = new Vector2((x * this._spacingX), ((this._boardHight * this._spacingY) / 2) + ((index) * this._spacingY));
+        sym.SetIndicies(x, index);
+        this._boardGame[x, index] = new Node(true, newSymbol);
+        Vector3 targetPos = new Vector3(newSymbol.transform.localPosition.x, (sym.yIndex * this._spacingY), newSymbol.transform.localPosition.z);
+        newSymbol.GetComponent<Symbol>().MovaToTarget(targetPos);
+    }
+
+    private int FindIndexOfLowerNull(int x)
+    {
+        int lowerNull = 99;
+        for (int y = (this._boardWidth - 1); y >= 0; y--)
+        {
+            if (this._boardGame[x, y].symbol == null)
+            {
+                lowerNull = y;
+            }
+        }
+        return lowerNull;
+    }
 }

@@ -760,6 +760,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1800924692}
   - component: {fileID: 1800924693}
+  - component: {fileID: 1800924694}
+  - component: {fileID: 1800924695}
   m_Layer: 0
   m_Name: GameplayManager
   m_TagString: Untagged
@@ -793,13 +795,39 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8cab8045a57d9f43b6cab5a5f3417bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _board: {fileID: 1650777758}
+  BoardGame: {fileID: 1650777758}
+  FindNearberSymbol: {fileID: 1800924695}
+  RemoveSymbol: {fileID: 1800924694}
   symbolPrefabs:
   - {fileID: 8961304934310255268, guid: da7915272ff3b014da017d18c565aad3, type: 3}
   - {fileID: 8961304934310255268, guid: 255e5c468c091014f99a7c8a6c432218, type: 3}
   - {fileID: 8961304934310255268, guid: 6257de3f3cb57d146a2679e344529225, type: 3}
   - {fileID: 8961304934310255268, guid: 7ee3e58def1464e4bb86454dff13e704, type: 3}
   ParentBoard: {fileID: 759443449}
+--- !u!114 &1800924694
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1800924691}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f77ca151b3524764982326d606c6697c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1800924695
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1800924691}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7bb9130f65c17e4e80fcc39e1aff353, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1830152243
 GameObject:
   m_ObjectHideFlags: 0
