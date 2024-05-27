@@ -18,6 +18,9 @@ public class GameManager : MonoBehaviour
     public int spacingX = 0;
     public int spacingY = 0;
 
+    public int LimitBomb = 0;
+    public int LimitDisco = 0;
+
     private void Awake()
     {
         if (instance == null)

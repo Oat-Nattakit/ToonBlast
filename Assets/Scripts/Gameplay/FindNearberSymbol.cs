@@ -25,6 +25,7 @@ public class FindNearberSymbol : MonoBehaviour
 
     public void FindNerberMatch()
     {
+        this._clearFindMatch();
         for (int x = 0; x < this.BoardWidth; x++)
         {
             for (int y = 0; y < this.BoardHight; y++)
@@ -36,6 +37,21 @@ public class FindNearberSymbol : MonoBehaviour
                     this.findMatching(symbols, new Vector2Int(0, -1));
                     this.findMatching(symbols, new Vector2Int(1, 0));
                     this.findMatching(symbols, new Vector2Int(-1, 0));
+                }
+            }
+        }
+    }
+
+    private void _clearFindMatch()
+    {
+        for (int x = 0; x < this.BoardWidth; x++)
+        {
+            for (int y = 0; y < this.BoardHight; y++)
+            {
+                if (this._boardGame[x, y].isUsable)
+                {
+                    Symbol symbols = this._boardGame[x, y].symbol.GetComponent<Symbol>();
+                    symbols.currenMatch.Clear();
                 }
             }
         }

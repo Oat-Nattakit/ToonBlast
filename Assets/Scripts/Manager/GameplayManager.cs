@@ -51,8 +51,7 @@ public class GameplayManager : MonoBehaviour
             }
         }
     }  
-
-    #region match
+    
     public async UniTask SelectSymbols(Symbol _symbol)
     {
         List<Symbol> symbolMatch = new List<Symbol>();
@@ -61,11 +60,9 @@ public class GameplayManager : MonoBehaviour
 
         await this.RemoveSymbol.RemoveSymbolObject(symbolMatch);
         this.RemoveSymbol.Refill((value) => this.BoardGame.SpawnSymbolAtTop(value));
-        await UniTask.Delay(2);
+        await UniTask.Delay(200);
         this.FindNearberSymbol.FindNerberMatch();
-    }
-
-   
+    }   
 
     private void _collectSymbolMatch(Symbol symbol, List<Symbol> symbolMatch)
     {
@@ -82,13 +79,13 @@ public class GameplayManager : MonoBehaviour
             }
         }
     }
-    #endregion 
+    
 
     #region Special 
     private void _checkConditionCreateSpecial(List<Symbol> destoryList)
     {
-        int limitBomb = 6;
-        int limitDisco = 10;
+        int limitBomb = GameManager.instance.LimitBomb;
+        int limitDisco = GameManager.instance.LimitDisco;
 
         if (destoryList.Count >= limitDisco)
         {
