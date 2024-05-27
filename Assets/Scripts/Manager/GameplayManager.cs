@@ -15,11 +15,6 @@ public class GameplayManager : MonoBehaviour
     private int spacingX = 0;
     private int spacingY = 0;
 
-    public GameObject[] symbolPrefabs;
-
-    //private Node[,] _board.BoardGame;
-    public GameObject ParentBoard;
-
     public void Init()
     {
         this.BoardHight = GameManager.instance.BoardHight;
@@ -27,12 +22,12 @@ public class GameplayManager : MonoBehaviour
 
         this.spacingX = GameManager.instance.spacingX;
         this.spacingY = GameManager.instance.spacingY;
-       
+
         this.BoardGame.Init();
         this.BoardGame.InitBoard();
 
         this.FindNearberSymbol.Init(this.BoardGame.BoardGame);
-        this.FindNearberSymbol.FindNerberMatch();
+        this.FindNearberSymbol.FindNerberNormalMatch();
 
         this.RemoveSymbol.Init(this.BoardGame.BoardGame);
     }
@@ -50,21 +45,30 @@ public class GameplayManager : MonoBehaviour
                 await this.SelectSymbols(symbol);
             }
         }
-    }  
-    
+    }
+
     public async UniTask SelectSymbols(Symbol _symbol)
     {
         List<Symbol> symbolMatch = new List<Symbol>();
-        this._collectSymbolMatch(_symbol, symbolMatch);
-        this._checkConditionCreateSpecial(symbolMatch);
+        switch (_symbol.TypeSymbol)
+        {
+            case (SymbolType.Bomb):
+                break;
+            case (SymbolType.Disco): 
+                break;
+            case (SymbolType.Normal):
+                this._CollectSymbolMatch(_symbol, symbolMatch);
+                this._CheckConditionCreateSpecial(symbolMatch);
+                break;
+        }       
 
         await this.RemoveSymbol.RemoveSymbolObject(symbolMatch);
         this.RemoveSymbol.Refill((value) => this.BoardGame.SpawnSymbolAtTop(value));
         await UniTask.Delay(200);
-        this.FindNearberSymbol.FindNerberMatch();
-    }   
+        this.FindNearberSymbol.FindNerberNormalMatch();
+    }
 
-    private void _collectSymbolMatch(Symbol symbol, List<Symbol> symbolMatch)
+    private void _CollectSymbolMatch(Symbol symbol, List<Symbol> symbolMatch)
     {
         if (symbol.currenMatch.Count > 0)
         {
@@ -74,15 +78,15 @@ public class GameplayManager : MonoBehaviour
                 var findSymbol = symbolMatch.Find((sym) => sym == item);
                 if (findSymbol == null)
                 {
-                    this._collectSymbolMatch(item, symbolMatch);
+                    this._CollectSymbolMatch(item, symbolMatch);
                 }
             }
         }
     }
-    
+
 
     #region Special 
-    private void _checkConditionCreateSpecial(List<Symbol> destoryList)
+    private void _CheckConditionCreateSpecial(List<Symbol> destoryList)
     {
         int limitBomb = GameManager.instance.LimitBomb;
         int limitDisco = GameManager.instance.LimitDisco;

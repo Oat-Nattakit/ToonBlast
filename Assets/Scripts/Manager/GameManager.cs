@@ -33,10 +33,10 @@ public class GameManager : MonoBehaviour
     {
         this._uiManager.InitUI();
 
-        this._initBtnStart();
+        this._InitBtnStart();
     }
 
-    private void _initBtnStart()
+    private void _InitBtnStart()
     {
         var startBtn = this._uiManager.btnStart;
         startBtn.onClick.AddListener(() =>

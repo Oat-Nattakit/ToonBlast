@@ -23,9 +23,9 @@ public class FindNearberSymbol : MonoBehaviour
         this._boardGame = _board;
     }
 
-    public void FindNerberMatch()
+    public void FindNerberNormalMatch()
     {
-        this._clearFindMatch();
+        this._ClearFindMatch();
         for (int x = 0; x < this.BoardWidth; x++)
         {
             for (int y = 0; y < this.BoardHight; y++)
@@ -33,16 +33,17 @@ public class FindNearberSymbol : MonoBehaviour
                 if (this._boardGame[x, y].isUsable)
                 {
                     Symbol symbols = this._boardGame[x, y].symbol.GetComponent<Symbol>();
-                    this.findMatching(symbols, new Vector2Int(0, 1));
-                    this.findMatching(symbols, new Vector2Int(0, -1));
-                    this.findMatching(symbols, new Vector2Int(1, 0));
-                    this.findMatching(symbols, new Vector2Int(-1, 0));
+                    /*this._FindNormalMatching(symbols, new Vector2Int(0, 1));
+                    this._FindNormalMatching(symbols, new Vector2Int(0, -1));
+                    this._FindNormalMatching(symbols, new Vector2Int(1, 0));
+                    this._FindNormalMatching(symbols, new Vector2Int(-1, 0));*/
+                    this._FindMatchSymbolType(symbols);
                 }
             }
         }
     }
 
-    private void _clearFindMatch()
+    private void _ClearFindMatch()
     {
         for (int x = 0; x < this.BoardWidth; x++)
         {
@@ -57,7 +58,32 @@ public class FindNearberSymbol : MonoBehaviour
         }
     }
 
-    private void findMatching(Symbol symbol, Vector2Int pos)
+    private void _FindMatchSymbolType(Symbol symbols)
+    {
+        switch (symbols.TypeSymbol)
+        {
+            case (SymbolType.Bomb):
+                this._FindSpecialBombMatching(symbols, new Vector2Int(0, 1));
+                this._FindSpecialBombMatching(symbols, new Vector2Int(0, -1));
+                this._FindSpecialBombMatching(symbols, new Vector2Int(1, 0));
+                this._FindSpecialBombMatching(symbols, new Vector2Int(-1, 0));
+                break;
+            case (SymbolType.Disco):
+                this._FindSpecialDiscoMatching(symbols, new Vector2Int(0, 1));
+                this._FindSpecialDiscoMatching(symbols, new Vector2Int(0, -1));
+                this._FindSpecialDiscoMatching(symbols, new Vector2Int(1, 0));
+                this._FindSpecialDiscoMatching(symbols, new Vector2Int(-1, 0));
+                break;
+            case (SymbolType.Normal):
+                this._FindNormalMatching(symbols, new Vector2Int(0, 1));
+                this._FindNormalMatching(symbols, new Vector2Int(0, -1));
+                this._FindNormalMatching(symbols, new Vector2Int(1, 0));
+                this._FindNormalMatching(symbols, new Vector2Int(-1, 0));
+                break;
+        }
+    }
+
+    private void _FindNormalMatching(Symbol symbol, Vector2Int pos)
     {
         SymbolColor color = symbol.ColorSymbol;
         int xIndex = symbol.xIndex + pos.x;
@@ -73,4 +99,96 @@ public class FindNearberSymbol : MonoBehaviour
         }
 
     }
+
+    public void _FindSpecialBombMatching(Symbol symbol, Vector2Int direction)
+    {
+        SymbolColor color = symbol.ColorSymbol;
+
+        int x = symbol.xIndex + direction.x;
+        int y = symbol.yIndex + direction.y;
+
+        while (x >= 0 && x < BoardWidth && y >= 0 && y < BoardHight)
+        {
+            if (this._boardGame[x, y].isUsable)
+            {
+                Symbol symbolNear = this._boardGame[x, y].symbol.GetComponent<Symbol>();
+
+                if (symbolNear.ColorSymbol == color)
+                {
+                    symbol.currenMatch.Add(symbolNear);
+                    x += direction.x;
+                    y += direction.y;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
+
+    public void _FindSpecialDiscoMatching(Symbol symbol, Vector2Int direction)
+    {
+        SymbolColor color = symbol.ColorSymbol;
+
+        int x = symbol.xIndex + direction.x;
+        int y = symbol.yIndex + direction.y;
+
+        while (x >= 0 && x < BoardWidth && y >= 0 && y < BoardHight)
+        {
+            if (this._boardGame[x, y].isUsable)
+            {
+                Symbol symbolNear = this._boardGame[x, y].symbol.GetComponent<Symbol>();
+
+                if (symbolNear.ColorSymbol == color)
+                {
+                    symbol.currenMatch.Add(symbolNear);
+                    x += direction.x;
+                    y += direction.y;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
 }
+/*private void CheckDirection(Symbol symbol, Vector2Int direction, List<Symbol> connectSymbol)
+    {
+        SymbolColor color = symbol.ColorSymbol;
+
+        int x = symbol.xIndex + direction.x;
+        int y = symbol.yIndex + direction.y;
+
+        while (x >= 0 && x < BoardWidth && y >= 0 && y < BoardHight)
+        {
+            if (this._boardGame[x, y].isUsable)
+            {
+                Symbol symbolNear = this._boardGame[x, y].symbol.GetComponent<Symbol>();
+
+                if (!symbolNear.isMatch && symbolNear.ColorSymbol == color)
+                {
+                    connectSymbol.Add(symbolNear);
+                    x += direction.x;
+                    y += direction.y;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            else
+            {
+                break;
+            }
+        }
+    }*/

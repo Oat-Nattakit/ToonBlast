@@ -45,10 +45,10 @@ public class Board : MonoBehaviour
             }
         }
 
-        this._setBoardSize();
+        this._SetBoardSize();
     }
 
-    private void _setBoardSize()
+    private void _SetBoardSize()
     {
         float boardSizeX = (this._boardHight * this._spacingX);
         float boardSizeY = (this._boardWidth * this._spacingY);
@@ -57,7 +57,7 @@ public class Board : MonoBehaviour
     
     public void SpawnSymbolAtTop(int x)
     {
-        int index = this.FindIndexOfLowerNull(x);
+        int index = this._FindIndexOfLowerNull(x);
         int locationToMove = this._boardWidth - index;
         int randomValue = Random.Range(0, this.symbolPrefabs.Length);
         GameObject newSymbol = Instantiate(this.symbolPrefabs[randomValue], this.ParentBoard.transform);
@@ -69,7 +69,7 @@ public class Board : MonoBehaviour
         newSymbol.GetComponent<Symbol>().MovaToTarget(targetPos);
     }
 
-    private int FindIndexOfLowerNull(int x)
+    private int _FindIndexOfLowerNull(int x)
     {
         int lowerNull = 99;
         for (int y = (this._boardWidth - 1); y >= 0; y--)

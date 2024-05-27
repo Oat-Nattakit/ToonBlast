@@ -9,12 +9,13 @@ public class Symbol : MonoBehaviour
     [SerializeField] private Image symbolImage;
     [SerializeField] private Image symbolSpecial;    
 
-    [SerializeField] private SymbolType Type = SymbolType.Normal;
-    [SerializeField] private SymbolColor symbolColor = SymbolColor.Red;
+    [SerializeField] private SymbolType _typeSymbol = SymbolType.Normal;
+    [SerializeField] private SymbolColor _symbolColor = SymbolColor.Red;
 
     public Image symbolImageObj { get => this.symbolImage; }
 
-    public SymbolColor ColorSymbol { get => this.symbolColor; }
+    public SymbolColor ColorSymbol { get => this._symbolColor; }
+    public SymbolType TypeSymbol { get => this._typeSymbol; }
 
     public int xIndex, yIndex; 
 
@@ -34,8 +35,8 @@ public class Symbol : MonoBehaviour
 
     private void Start()
     {
-        this._settingSymbolType(Type);
-        this._settingSymbolColor(symbolColor); 
+        this._SettingSymbolType(_typeSymbol);
+        this._SettingSymbolColor(_symbolColor); 
     }
 
     public void MovaToTarget(Vector2 _targetPos)
@@ -61,7 +62,7 @@ public class Symbol : MonoBehaviour
         this.transform.localPosition = _targetPos;
     }
 
-    private void _settingSymbolType(SymbolType type)
+    private void _SettingSymbolType(SymbolType type)
     {
         switch (type)
         {
@@ -78,7 +79,7 @@ public class Symbol : MonoBehaviour
         }
     }
 
-    private void _settingSymbolColor(SymbolColor color)
+    private void _SettingSymbolColor(SymbolColor color)
     {
         switch (color)
         {
