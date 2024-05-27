@@ -36,8 +36,8 @@ public class Symbol : MonoBehaviour
 
     public void InitSymbol(SymbolType _type, SymbolColor _color)
     {
-        this._SettingSymbolType(_type);
         this._SettingSymbolColor(_color);
+        this._SettingSymbolType(_type);        
     }  
 
     public void MovaToTarget(Vector2 _targetPos)
@@ -70,6 +70,8 @@ public class Symbol : MonoBehaviour
         {
             case SymbolType.Bomb:
                 this.symbolSpecial.gameObject.SetActive(true);
+                this.symbolImage.color = Color.black;
+                this.symbolSpecial.color = Color.red;
                 break;
             case SymbolType.Disco:
                 this.symbolSpecial.gameObject.SetActive(true);

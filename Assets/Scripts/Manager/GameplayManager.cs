@@ -16,6 +16,10 @@ public class GameplayManager : MonoBehaviour
     private int spacingX = 0;
     private int spacingY = 0;
 
+    private bool isMove = false;
+
+    public List<Symbol> showSymbolList = new List<Symbol>();
+
     public void Init()
     {
         this.BoardHight = GameManager.instance.BoardHight;
@@ -23,7 +27,7 @@ public class GameplayManager : MonoBehaviour
 
         this.spacingX = GameManager.instance.spacingX;
         this.spacingY = GameManager.instance.spacingY;
-       
+
         this.BoardGame.Init();
         this.BoardGame.InitBoard();
 
@@ -33,11 +37,11 @@ public class GameplayManager : MonoBehaviour
         this.RemoveSymbol.Init(this.BoardGame.BoardGame);
     }
 
-    
+
 
     private async void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && this.isMove == false)
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction);
@@ -53,29 +57,39 @@ public class GameplayManager : MonoBehaviour
     public async UniTask SelectSymbols(Symbol _symbol)
     {
         List<Symbol> symbolMatch = new List<Symbol>();
+        SymbolSpecial special = new SymbolSpecial();
+
         switch (_symbol.TypeSymbol)
         {
             case (SymbolType.Bomb):
+
                 this.FindNearberSymbol.FindNerberSpaMatch(_symbol);
-                this._CollectSymbolMatch(_symbol, symbolMatch);
+                this._CollectSymbolSpecialMatch(_symbol, symbolMatch);
                 break;
             case (SymbolType.Disco):
                 this.FindNearberSymbol.FindNerberSpaMatch(_symbol);
-                this._CollectSymbolMatch(_symbol, symbolMatch);
+                this._CollectSymbolSpecialMatch(_symbol, symbolMatch);                
                 break;
             case (SymbolType.Normal):
-                this._CollectSymbolMatch(_symbol, symbolMatch);
-                this._CheckConditionCreateSpecial(symbolMatch);
+                this._CollectSymbolNormalMatch(_symbol, symbolMatch);
+                special = this._CheckConditionCreateSpecial(_symbol, symbolMatch);
                 break;
-        }       
+        }
+        if (symbolMatch.Count > 0)
+        {
+            this.isMove = true;
+            await this.RemoveSymbol.RemoveSymbolObject(symbolMatch);
+            List<int> spawnPosx = await this.BoardGame.Refill();
+            await this.BoardGame.SpawnSymbolAddPosX(spawnPosx, special);
+            await UniTask.Delay(100);
+            this.FindNearberSymbol.FindNerberNormalMatch();
+            this.isMove = false;
+        }
 
-        await this.RemoveSymbol.RemoveSymbolObject(symbolMatch);
-        this.RemoveSymbol.Refill((value) => this.BoardGame.SpawnSymbolAtTop(value));
-        await UniTask.Delay(200);
-        this.FindNearberSymbol.FindNerberNormalMatch();
+
     }
 
-    private void _CollectSymbolMatch(Symbol symbol, List<Symbol> symbolMatch)
+    private void _CollectSymbolNormalMatch(Symbol symbol, List<Symbol> symbolMatch)
     {
         if (symbol.currenMatch.Count > 0)
         {
@@ -85,27 +99,50 @@ public class GameplayManager : MonoBehaviour
                 var findSymbol = symbolMatch.Find((sym) => sym == item);
                 if (findSymbol == null)
                 {
-                    this._CollectSymbolMatch(item, symbolMatch);
+                    this._CollectSymbolNormalMatch(item, symbolMatch);
                 }
+            }
+        }
+    }
+
+    private void _CollectSymbolSpecialMatch(Symbol symbol, List<Symbol> symbolMatch)
+    {
+        if (symbol.currenMatch.Count > 0)
+        {
+            symbolMatch.Add(symbol);
+            foreach (Symbol item in symbol.currenMatch)
+            {
+                symbolMatch.Add(item);
             }
         }
     }
 
 
     #region Special 
-    private void _CheckConditionCreateSpecial(List<Symbol> destoryList)
+    private SymbolSpecial _CheckConditionCreateSpecial(Symbol _symbol, List<Symbol> destoryList)
     {
         int limitBomb = GameManager.instance.LimitBomb;
         int limitDisco = GameManager.instance.LimitDisco;
-
+        SymbolSpecial special = new SymbolSpecial();
         if (destoryList.Count >= limitDisco)
         {
-            Debug.LogWarning("get Dicgo");
+            special.SymbolType = SymbolType.Disco;
+            special.SymbolColor = _symbol.ColorSymbol;
+
+
         }
         else if (destoryList.Count >= limitBomb)
         {
-            Debug.LogWarning("get Bomb");
+            special.SymbolType = SymbolType.Bomb;
+            special.SymbolColor = _symbol.ColorSymbol;
         }
+        return special;
     }
     #endregion
+}
+
+public class SymbolSpecial
+{
+    public SymbolType SymbolType;
+    public SymbolColor SymbolColor;
 }

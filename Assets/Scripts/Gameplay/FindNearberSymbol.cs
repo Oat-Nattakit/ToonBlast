@@ -37,7 +37,6 @@ public class FindNearberSymbol : MonoBehaviour
                     this._FindNormalMatching(symbols, new Vector2Int(0, -1));
                     this._FindNormalMatching(symbols, new Vector2Int(1, 0));
                     this._FindNormalMatching(symbols, new Vector2Int(-1, 0));
-                    //this._FindMatchSymbolType(symbols);
                 }
             }
         }
@@ -46,7 +45,7 @@ public class FindNearberSymbol : MonoBehaviour
     public void FindNerberSpaMatch(Symbol symbols)
     {
         this._ClearFindMatch();
-        this._FindMatchSymbolType(symbols);       
+        this._FindMatchSymbolType(symbols);
     }
 
     private void _ClearFindMatch()
@@ -75,11 +74,8 @@ public class FindNearberSymbol : MonoBehaviour
                 this._FindSpecialBombMatching(symbols, new Vector2Int(-1, 0));
                 break;
             case (SymbolType.Disco):
-                this._FindSpecialDiscoMatching(symbols, new Vector2Int(0, 1));
-                this._FindSpecialDiscoMatching(symbols, new Vector2Int(0, -1));
-                this._FindSpecialDiscoMatching(symbols, new Vector2Int(1, 0));
-                this._FindSpecialDiscoMatching(symbols, new Vector2Int(-1, 0));
-                break;           
+                this._FindSpecialDiscoMatching(symbols);
+                break;
         }
     }
 
@@ -92,7 +88,7 @@ public class FindNearberSymbol : MonoBehaviour
         {
 
             Symbol symbolNear = this._boardGame[xIndex, yIndex].symbol.GetComponent<Symbol>();
-            if (symbolNear.ColorSymbol == color)
+            if (symbolNear.ColorSymbol == color && symbolNear.TypeSymbol == SymbolType.Normal)
             {
                 symbol.currenMatch.Add(symbolNear);
             }
@@ -113,16 +109,9 @@ public class FindNearberSymbol : MonoBehaviour
             {
                 Symbol symbolNear = this._boardGame[x, y].symbol.GetComponent<Symbol>();
 
-                if (symbolNear.ColorSymbol == color)
-                {
-                    symbol.currenMatch.Add(symbolNear);
-                    x += direction.x;
-                    y += direction.y;
-                }
-                else
-                {
-                    break;
-                }
+                symbol.currenMatch.Add(symbolNear);
+                x += direction.x;
+                y += direction.y;
             }
             else
             {
@@ -131,7 +120,7 @@ public class FindNearberSymbol : MonoBehaviour
         }
     }
 
-    public void _FindSpecialDiscoMatching(Symbol _symbol, Vector2Int direction)
+    public void _FindSpecialDiscoMatching(Symbol _symbol)
     {
         SymbolColor color = _symbol.ColorSymbol;
 
@@ -146,9 +135,9 @@ public class FindNearberSymbol : MonoBehaviour
                     if (symbols.ColorSymbol == color)
                     {
                         _symbol.currenMatch.Add(symbols);
-                    }                   
+                    }
                 }
             }
-        }        
+        }
     }
 }

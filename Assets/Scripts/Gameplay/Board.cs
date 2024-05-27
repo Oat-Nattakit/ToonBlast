@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -36,7 +37,7 @@ public class Board : MonoBehaviour
         {
             for (int x = 0; x < _boardWidth; x++)
             {
-                Vector2 position = new Vector2(x * _spacingX, y * _spacingY);            
+                Vector2 position = new Vector2(x * _spacingX, y * _spacingY);
                 int randomIndex = this._RandomColorSymbol();
                 GameObject symbols = Instantiate(this.symbolPrefabs, this.ParentBoard.transform);
                 symbols.transform.localPosition = position;
@@ -57,18 +58,94 @@ public class Board : MonoBehaviour
         this.ParentBoard.transform.localPosition = new Vector2(-boardSizeX / 2, -boardSizeY / 2);
     }
 
-    public void SpawnSymbolAtTop(int x, SymbolType type = SymbolType.Normal)
+    public async UniTask<List<int>> Refill()
+    {
+        List<int> spawPosX = new List<int>();
+        for (int x = 0; x < this._boardWidth; x++)
+        {
+            for (int y = 0; y < this._boardHight; y++)
+            {
+                if (this._boardGame[x, y].symbol == null)
+                {
+                    this.RefillBoard(x, y, spawPosX);
+                }
+            }
+        }
+        await UniTask.Delay(300);
+        return spawPosX;
+        /* await UniTask.Delay(300);
+         foreach (var item in spawPosX)
+         {
+             this.SpawnSymbolAtTop(item);
+         }*/
+    }
+
+    private void RefillBoard(int x, int y, List<int> spawPosX)
+    {
+        int yOffset = 1;
+        while ((y + yOffset < this._boardHight) && (this._boardGame[x, y + yOffset].symbol == null))
+        {
+            yOffset++;
+        }
+
+        if ((y + yOffset < this._boardHight) && (this._boardGame[x, y + yOffset].symbol != null))
+        {
+            Symbol symbolAbove = this._boardGame[x, y + yOffset].symbol.GetComponent<Symbol>();
+
+            Vector3 targetPos = new Vector3((x * this._spacingX), (y * this._spacingY), 0);
+
+            symbolAbove.MovaToTarget(targetPos);
+
+            symbolAbove.SetIndicies(x, y);
+            this._boardGame[x, y] = this._boardGame[x, y + yOffset];
+            this._boardGame[x, y + yOffset] = new Node(true, null);
+        }
+        if (y + yOffset == this._boardHight)
+        {
+            //this.SpawnSymbolAtTop(x);
+            spawPosX.Add(x);
+        }
+    }
+
+    public async UniTask SpawnSymbolAddPosX(List<int> spawPosX, SymbolSpecial special)
+    {
+        for (int i = 0; i < spawPosX.Count; i++)
+        {
+            if (i == 0)
+            {
+                int randomIndex = this._RandomColorSymbol();
+                SymbolColor _color = (SymbolColor)randomIndex;
+
+                if (special.SymbolType == SymbolType.Disco)
+                {
+                    _color = special.SymbolColor;
+                }
+                this.SpawnSymbolAtTop(spawPosX[i], special.SymbolType, _color);
+            }
+            else
+            {
+                int randomIndex = this._RandomColorSymbol();
+                SymbolColor _color = (SymbolColor)randomIndex;
+                this.SpawnSymbolAtTop(spawPosX[i], SymbolType.Normal, _color);
+            }
+        }
+        await UniTask.Delay(200);
+
+    }
+
+    public void SpawnSymbolAtTop(int x, SymbolType _type, SymbolColor _color)
     {
         int index = this._FindIndexOfLowerNull(x);
-        int locationToMove = this._boardWidth - index;        
-        int randomIndex = this._RandomColorSymbol();
+        int locationToMove = this._boardWidth - index;
+        //int randomIndex = this._RandomColorSymbol();
         GameObject newSymbol = Instantiate(this.symbolPrefabs, this.ParentBoard.transform);
-        Symbol sym = newSymbol.GetComponent<Symbol>();
-        sym.transform.localPosition = new Vector2((x * this._spacingX), ((this._boardHight * this._spacingY) / 2) + ((index) * this._spacingY));
-        sym.SetIndicies(x, index);
-        sym.InitSymbol(type, (SymbolColor)randomIndex);
+        Symbol symbols = newSymbol.GetComponent<Symbol>();
+        symbols.transform.localPosition = new Vector2((x * this._spacingX), ((this._boardHight * this._spacingY) / 2) + ((index) * this._spacingY));
+        symbols.SetIndicies(x, index);
+        symbols.InitSymbol(_type, _color);
+        symbols.name = "Symbol_" + _color;
         this._boardGame[x, index] = new Node(true, newSymbol);
-        Vector3 targetPos = new Vector3(newSymbol.transform.localPosition.x, (sym.yIndex * this._spacingY), newSymbol.transform.localPosition.z);
+        Vector3 targetPos = new Vector3(newSymbol.transform.localPosition.x, (symbols.yIndex * this._spacingY), newSymbol.transform.localPosition.z);
         newSymbol.GetComponent<Symbol>().MovaToTarget(targetPos);
     }
 
