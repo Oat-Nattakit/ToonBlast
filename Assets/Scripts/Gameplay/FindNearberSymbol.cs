@@ -33,14 +33,20 @@ public class FindNearberSymbol : MonoBehaviour
                 if (this._boardGame[x, y].isUsable)
                 {
                     Symbol symbols = this._boardGame[x, y].symbol.GetComponent<Symbol>();
-                    /*this._FindNormalMatching(symbols, new Vector2Int(0, 1));
+                    this._FindNormalMatching(symbols, new Vector2Int(0, 1));
                     this._FindNormalMatching(symbols, new Vector2Int(0, -1));
                     this._FindNormalMatching(symbols, new Vector2Int(1, 0));
-                    this._FindNormalMatching(symbols, new Vector2Int(-1, 0));*/
-                    this._FindMatchSymbolType(symbols);
+                    this._FindNormalMatching(symbols, new Vector2Int(-1, 0));
+                    //this._FindMatchSymbolType(symbols);
                 }
             }
         }
+    }
+
+    public void FindNerberSpaMatch(Symbol symbols)
+    {
+        this._ClearFindMatch();
+        this._FindMatchSymbolType(symbols);       
     }
 
     private void _ClearFindMatch()
@@ -73,13 +79,7 @@ public class FindNearberSymbol : MonoBehaviour
                 this._FindSpecialDiscoMatching(symbols, new Vector2Int(0, -1));
                 this._FindSpecialDiscoMatching(symbols, new Vector2Int(1, 0));
                 this._FindSpecialDiscoMatching(symbols, new Vector2Int(-1, 0));
-                break;
-            case (SymbolType.Normal):
-                this._FindNormalMatching(symbols, new Vector2Int(0, 1));
-                this._FindNormalMatching(symbols, new Vector2Int(0, -1));
-                this._FindNormalMatching(symbols, new Vector2Int(1, 0));
-                this._FindNormalMatching(symbols, new Vector2Int(-1, 0));
-                break;
+                break;           
         }
     }
 
@@ -131,64 +131,24 @@ public class FindNearberSymbol : MonoBehaviour
         }
     }
 
-    public void _FindSpecialDiscoMatching(Symbol symbol, Vector2Int direction)
+    public void _FindSpecialDiscoMatching(Symbol _symbol, Vector2Int direction)
     {
-        SymbolColor color = symbol.ColorSymbol;
+        SymbolColor color = _symbol.ColorSymbol;
 
-        int x = symbol.xIndex + direction.x;
-        int y = symbol.yIndex + direction.y;
-
-        while (x >= 0 && x < BoardWidth && y >= 0 && y < BoardHight)
+        for (int x = 0; x < this.BoardWidth; x++)
         {
-            if (this._boardGame[x, y].isUsable)
+            for (int y = 0; y < this.BoardHight; y++)
             {
-                Symbol symbolNear = this._boardGame[x, y].symbol.GetComponent<Symbol>();
+                if (this._boardGame[x, y].isUsable)
+                {
+                    Symbol symbols = this._boardGame[x, y].symbol.GetComponent<Symbol>();
 
-                if (symbolNear.ColorSymbol == color)
-                {
-                    symbol.currenMatch.Add(symbolNear);
-                    x += direction.x;
-                    y += direction.y;
-                }
-                else
-                {
-                    break;
+                    if (symbols.ColorSymbol == color)
+                    {
+                        _symbol.currenMatch.Add(symbols);
+                    }                   
                 }
             }
-            else
-            {
-                break;
-            }
-        }
+        }        
     }
 }
-/*private void CheckDirection(Symbol symbol, Vector2Int direction, List<Symbol> connectSymbol)
-    {
-        SymbolColor color = symbol.ColorSymbol;
-
-        int x = symbol.xIndex + direction.x;
-        int y = symbol.yIndex + direction.y;
-
-        while (x >= 0 && x < BoardWidth && y >= 0 && y < BoardHight)
-        {
-            if (this._boardGame[x, y].isUsable)
-            {
-                Symbol symbolNear = this._boardGame[x, y].symbol.GetComponent<Symbol>();
-
-                if (!symbolNear.isMatch && symbolNear.ColorSymbol == color)
-                {
-                    connectSymbol.Add(symbolNear);
-                    x += direction.x;
-                    y += direction.y;
-                }
-                else
-                {
-                    break;
-                }
-            }
-            else
-            {
-                break;
-            }
-        }
-    }*/

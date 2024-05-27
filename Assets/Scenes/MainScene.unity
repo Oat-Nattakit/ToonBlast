@@ -678,11 +678,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3a5e4ebd88cc7c4f9f5914887b33a37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  symbolPrefabs:
-  - {fileID: 8961304934310255268, guid: da7915272ff3b014da017d18c565aad3, type: 3}
-  - {fileID: 8961304934310255268, guid: 255e5c468c091014f99a7c8a6c432218, type: 3}
-  - {fileID: 8961304934310255268, guid: 6257de3f3cb57d146a2679e344529225, type: 3}
-  - {fileID: 8961304934310255268, guid: 7ee3e58def1464e4bb86454dff13e704, type: 3}
+  symbolPrefabs: {fileID: 8961304934310255268, guid: 1c83f95ee42058e4a9cd3e16d0d3ca19, type: 3}
   ParentBoard: {fileID: 759443449}
 --- !u!1 &1751109296
 GameObject:
@@ -798,12 +794,6 @@ MonoBehaviour:
   BoardGame: {fileID: 1650777758}
   FindNearberSymbol: {fileID: 1800924695}
   RemoveSymbol: {fileID: 1800924694}
-  symbolPrefabs:
-  - {fileID: 8961304934310255268, guid: da7915272ff3b014da017d18c565aad3, type: 3}
-  - {fileID: 8961304934310255268, guid: 255e5c468c091014f99a7c8a6c432218, type: 3}
-  - {fileID: 8961304934310255268, guid: 6257de3f3cb57d146a2679e344529225, type: 3}
-  - {fileID: 8961304934310255268, guid: 7ee3e58def1464e4bb86454dff13e704, type: 3}
-  ParentBoard: {fileID: 759443449}
 --- !u!114 &1800924694
 MonoBehaviour:
   m_ObjectHideFlags: 0

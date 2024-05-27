@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -33,11 +34,11 @@ public class Symbol : MonoBehaviour
         this.yIndex = y;
     }  
 
-    private void Start()
+    public void InitSymbol(SymbolType _type, SymbolColor _color)
     {
-        this._SettingSymbolType(_typeSymbol);
-        this._SettingSymbolColor(_symbolColor); 
-    }
+        this._SettingSymbolType(_type);
+        this._SettingSymbolColor(_color);
+    }  
 
     public void MovaToTarget(Vector2 _targetPos)
     {
@@ -64,6 +65,7 @@ public class Symbol : MonoBehaviour
 
     private void _SettingSymbolType(SymbolType type)
     {
+        this._typeSymbol = type;
         switch (type)
         {
             case SymbolType.Bomb:
@@ -81,6 +83,7 @@ public class Symbol : MonoBehaviour
 
     private void _SettingSymbolColor(SymbolColor color)
     {
+        this._symbolColor = color;  
         switch (color)
         {
             case SymbolColor.Red:

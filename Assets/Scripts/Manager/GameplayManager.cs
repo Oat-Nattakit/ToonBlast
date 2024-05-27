@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -22,7 +23,7 @@ public class GameplayManager : MonoBehaviour
 
         this.spacingX = GameManager.instance.spacingX;
         this.spacingY = GameManager.instance.spacingY;
-
+       
         this.BoardGame.Init();
         this.BoardGame.InitBoard();
 
@@ -31,6 +32,8 @@ public class GameplayManager : MonoBehaviour
 
         this.RemoveSymbol.Init(this.BoardGame.BoardGame);
     }
+
+    
 
     private async void Update()
     {
@@ -53,8 +56,12 @@ public class GameplayManager : MonoBehaviour
         switch (_symbol.TypeSymbol)
         {
             case (SymbolType.Bomb):
+                this.FindNearberSymbol.FindNerberSpaMatch(_symbol);
+                this._CollectSymbolMatch(_symbol, symbolMatch);
                 break;
-            case (SymbolType.Disco): 
+            case (SymbolType.Disco):
+                this.FindNearberSymbol.FindNerberSpaMatch(_symbol);
+                this._CollectSymbolMatch(_symbol, symbolMatch);
                 break;
             case (SymbolType.Normal):
                 this._CollectSymbolMatch(_symbol, symbolMatch);

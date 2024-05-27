@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,7 +11,7 @@ public class Board : MonoBehaviour
     private int _spacingX = 0;
     private int _spacingY = 0;
 
-    public GameObject[] symbolPrefabs;
+    public GameObject symbolPrefabs;
 
     private Node[,] _boardGame;
     public Node[,] BoardGame { get => this._boardGame; }
@@ -35,12 +36,13 @@ public class Board : MonoBehaviour
         {
             for (int x = 0; x < _boardWidth; x++)
             {
-                Vector2 position = new Vector2(x * _spacingX, y * _spacingY);
-                int randomIndex = Random.Range(0, this.symbolPrefabs.Length);
-                GameObject symbols = Instantiate(this.symbolPrefabs[randomIndex], this.ParentBoard.transform);
+                Vector2 position = new Vector2(x * _spacingX, y * _spacingY);            
+                int randomIndex = this._RandomColorSymbol();
+                GameObject symbols = Instantiate(this.symbolPrefabs, this.ParentBoard.transform);
                 symbols.transform.localPosition = position;
                 symbols.GetComponent<Symbol>().SetIndicies(x, y);
-                symbols.name = "[" + x + "," + y + "]";
+                symbols.GetComponent<Symbol>().InitSymbol(SymbolType.Normal, (SymbolColor)randomIndex);
+                symbols.name = "Symbol_" + (SymbolColor)randomIndex;
                 this._boardGame[x, y] = new Node(true, symbols);
             }
         }
@@ -54,19 +56,27 @@ public class Board : MonoBehaviour
         float boardSizeY = (this._boardWidth * this._spacingY);
         this.ParentBoard.transform.localPosition = new Vector2(-boardSizeX / 2, -boardSizeY / 2);
     }
-    
-    public void SpawnSymbolAtTop(int x)
+
+    public void SpawnSymbolAtTop(int x, SymbolType type = SymbolType.Normal)
     {
         int index = this._FindIndexOfLowerNull(x);
-        int locationToMove = this._boardWidth - index;
-        int randomValue = Random.Range(0, this.symbolPrefabs.Length);
-        GameObject newSymbol = Instantiate(this.symbolPrefabs[randomValue], this.ParentBoard.transform);
+        int locationToMove = this._boardWidth - index;        
+        int randomIndex = this._RandomColorSymbol();
+        GameObject newSymbol = Instantiate(this.symbolPrefabs, this.ParentBoard.transform);
         Symbol sym = newSymbol.GetComponent<Symbol>();
         sym.transform.localPosition = new Vector2((x * this._spacingX), ((this._boardHight * this._spacingY) / 2) + ((index) * this._spacingY));
         sym.SetIndicies(x, index);
+        sym.InitSymbol(type, (SymbolColor)randomIndex);
         this._boardGame[x, index] = new Node(true, newSymbol);
         Vector3 targetPos = new Vector3(newSymbol.transform.localPosition.x, (sym.yIndex * this._spacingY), newSymbol.transform.localPosition.z);
         newSymbol.GetComponent<Symbol>().MovaToTarget(targetPos);
+    }
+
+    private int _RandomColorSymbol()
+    {
+        int rangeValue = Enum.GetNames(typeof(SymbolColor)).Length;
+        int randomIndex = UnityEngine.Random.Range(0, rangeValue);
+        return randomIndex;
     }
 
     private int _FindIndexOfLowerNull(int x)
