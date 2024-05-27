@@ -52,7 +52,7 @@ public class Board : MonoBehaviour
             }
         }
 
-        this._SetBoardSize();
+       this._SetBoardSize();
     }
 
     private void _SetBoardSize()
