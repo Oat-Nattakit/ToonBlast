@@ -678,10 +678,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3a5e4ebd88cc7c4f9f5914887b33a37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BoardWidth: 8
-  BoardHight: 8
-  spacingX: 101
-  spacingY: 101
   symbolPrefabs:
   - {fileID: 8961304934310255268, guid: da7915272ff3b014da017d18c565aad3, type: 3}
   - {fileID: 8961304934310255268, guid: 255e5c468c091014f99a7c8a6c432218, type: 3}
@@ -798,10 +794,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _board: {fileID: 1650777758}
-  BoardWidth: 8
-  BoardHight: 8
-  spacingX: 101
-  spacingY: 101
   symbolPrefabs:
   - {fileID: 8961304934310255268, guid: da7915272ff3b014da017d18c565aad3, type: 3}
   - {fileID: 8961304934310255268, guid: 255e5c468c091014f99a7c8a6c432218, type: 3}
@@ -956,6 +948,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _uiManager: {fileID: 611981488}
   _gameplay: {fileID: 1800924693}
+  BoardWidth: 8
+  BoardHight: 8
+  spacingX: 101
+  spacingY: 101
 --- !u!1 &1932756771
 GameObject:
   m_ObjectHideFlags: 0
