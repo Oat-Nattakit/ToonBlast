@@ -26,7 +26,20 @@ public class RemoveSymbol : MonoBehaviour
     }
 
     public async UniTask RemoveSymbolObject(List<Symbol> symbolRemove)
-    {  
+    {
+        /*foreach (Symbol symbol in symbolRemove)
+        {
+            int Xindex = symbol.xIndex;
+            int Yindex = symbol.yIndex;
+
+            symbol.symbolImageObj.color = Color.white;
+
+
+            this._boardGame[Xindex, Yindex] = new Node(true, null);
+        }
+
+        await UniTask.Delay(1000);*/
+
         foreach (Symbol symbol in symbolRemove)
         {
             int Xindex = symbol.xIndex;

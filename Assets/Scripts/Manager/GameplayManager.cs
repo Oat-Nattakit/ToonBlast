@@ -62,19 +62,19 @@ public class GameplayManager : MonoBehaviour
         switch (_symbol.TypeSymbol)
         {
             case (SymbolType.Bomb):
-
                 this.FindNearberSymbol.FindNerberSpaMatch(_symbol);
                 this._CollectSymbolSpecialMatch(_symbol, symbolMatch);
                 break;
             case (SymbolType.Disco):
                 this.FindNearberSymbol.FindNerberSpaMatch(_symbol);
-                this._CollectSymbolSpecialMatch(_symbol, symbolMatch);                
+                this._CollectSymbolSpecialMatch(_symbol, symbolMatch);
                 break;
             case (SymbolType.Normal):
                 this._CollectSymbolNormalMatch(_symbol, symbolMatch);
                 special = this._CheckConditionCreateSpecial(_symbol, symbolMatch);
                 break;
         }
+
         if (symbolMatch.Count > 0)
         {
             this.isMove = true;

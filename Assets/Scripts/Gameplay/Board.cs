@@ -136,14 +136,14 @@ public class Board : MonoBehaviour
     public void SpawnSymbolAtTop(int x, SymbolType _type, SymbolColor _color)
     {
         int index = this._FindIndexOfLowerNull(x);
-        int locationToMove = this._boardWidth - index;
-        //int randomIndex = this._RandomColorSymbol();
+        int locationToMove = this._boardWidth - index;       
         GameObject newSymbol = Instantiate(this.symbolPrefabs, this.ParentBoard.transform);
         Symbol symbols = newSymbol.GetComponent<Symbol>();
         symbols.transform.localPosition = new Vector2((x * this._spacingX), ((this._boardHight * this._spacingY) / 2) + ((index) * this._spacingY));
         symbols.SetIndicies(x, index);
         symbols.InitSymbol(_type, _color);
-        symbols.name = "Symbol_" + _color;
+        string symName = _type == SymbolType.Normal ? _color.ToString() : _type.ToString();
+        symbols.name = "Symbol_" + symName;
         this._boardGame[x, index] = new Node(true, newSymbol);
         Vector3 targetPos = new Vector3(newSymbol.transform.localPosition.x, (symbols.yIndex * this._spacingY), newSymbol.transform.localPosition.z);
         newSymbol.GetComponent<Symbol>().MovaToTarget(targetPos);

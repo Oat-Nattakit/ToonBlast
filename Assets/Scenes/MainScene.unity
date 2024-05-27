@@ -971,8 +971,8 @@ MonoBehaviour:
   BoardHight: 8
   spacingX: 101
   spacingY: 101
-  LimitBomb: 5
-  LimitDisco: 100
+  LimitBomb: 6
+  LimitDisco: 10
 --- !u!1 &1932756771
 GameObject:
   m_ObjectHideFlags: 0

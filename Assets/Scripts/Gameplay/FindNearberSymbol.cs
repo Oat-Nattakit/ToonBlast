@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -44,7 +45,7 @@ public class FindNearberSymbol : MonoBehaviour
 
     public void FindNerberSpaMatch(Symbol symbols)
     {
-        this._ClearFindMatch();
+        this._ClearFindMatch();        
         this._FindMatchSymbolType(symbols);
     }
 
@@ -98,18 +99,20 @@ public class FindNearberSymbol : MonoBehaviour
 
     public void _FindSpecialBombMatching(Symbol symbol, Vector2Int direction)
     {
-        SymbolColor color = symbol.ColorSymbol;
-
         int x = symbol.xIndex + direction.x;
         int y = symbol.yIndex + direction.y;
+
+        List<Symbol> symbols = new List<Symbol>();
 
         while (x >= 0 && x < BoardWidth && y >= 0 && y < BoardHight)
         {
             if (this._boardGame[x, y].isUsable)
             {
                 Symbol symbolNear = this._boardGame[x, y].symbol.GetComponent<Symbol>();
-
-                symbol.currenMatch.Add(symbolNear);
+                if (symbolNear.TypeSymbol == SymbolType.Normal)
+                {
+                    symbol.currenMatch.Add(symbolNear);
+                }
                 x += direction.x;
                 y += direction.y;
             }
