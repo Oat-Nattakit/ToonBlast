@@ -49,28 +49,40 @@ public class GameManager : MonoBehaviour
     {
         this._currentScore = 0;
         this._gameplay.ResetBoard();
+        this._nodePooling.Clear();        
     }
 
     private void _initUI()
     {
         this._uiManager.InitUI();
-        this._InitBtnStart();
+        this._InitButton();
     }
 
-    private void _InitBtnStart()
+    private void _InitButton()
     {
         var startBtn = this._uiManager.btnStart;
-        var endBtn = this._uiManager.btnExit;
+        var exitGame = this._uiManager.btnExit;
+        var settingGame = this._uiManager.btnSetting;
+        var exSettingGame = this._uiManager.btnExitSetting;
+
         startBtn.onClick.AddListener(() =>
         {
-            this._uiManager.HidePanelStart(true);
+            this._uiManager.showPanelGameplay(true);
             this._initGamePlay();
         });
 
-        endBtn.onClick.AddListener(() =>
+        exitGame.onClick.AddListener(() =>
         {
-            this._uiManager.HidePanelStart(false);
+            this._uiManager.showPanelGameplay(false);
             this._reset();
+        });
+
+        settingGame.onClick.AddListener(() => {
+            this._uiManager.ClickSetting(true);
+        });
+
+        exSettingGame.onClick.AddListener(() => {
+            this._uiManager.ClickSetting(false);
         });
     }
 

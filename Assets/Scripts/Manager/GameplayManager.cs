@@ -39,9 +39,7 @@ public class GameplayManager : MonoBehaviour
 
     public void ResetBoard()
     {
-        this._callBaclScore = null;
-        this.BoardGame.ClearBoard();
-        
+        this._callBaclScore = null;        
     }
 
     public void InitCallbackScore(Action<int> _callback)

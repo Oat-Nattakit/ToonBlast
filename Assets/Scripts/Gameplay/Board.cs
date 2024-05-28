@@ -14,8 +14,6 @@ public class Board : MonoBehaviour
     private int _spacingX = 0;
     private int _spacingY = 0;
 
-    public GameObject symbolPrefabs;
-
     private Node[,] _boardGame;
     public Node[,] BoardGame { get => this._boardGame; }
 
@@ -32,29 +30,16 @@ public class Board : MonoBehaviour
         this._spacingY = GameManager.instance.spacingY;
     }
 
-    public void ClearBoard()
-    {
-        for (int y = 0; y < _boardHight; y++)
-        {
-            for (int x = 0; x < _boardWidth; x++)
-            {
-                Destroy(this._boardGame[x, y].symbol);
-            }
-        }
-        this._boardGame = null;
-    }
-
-
     public void InitBoard()
-    {
+    {        
         this._boardGame = new Node[_boardWidth, _boardHight];
-
         for (int y = 0; y < _boardHight; y++)
         {
             for (int x = 0; x < _boardWidth; x++)
             {                
                 int randomIndex = this._RandomColorSymbol();
                 GameObject newSymbol = this._CreateSymbol(x,y);
+
                 Symbol symbols = newSymbol.GetComponent<Symbol>();
                 Vector2 position = new Vector2(x * _spacingX, y * _spacingY);
                 symbols.transform.localPosition = position;
@@ -66,7 +51,7 @@ public class Board : MonoBehaviour
     } 
 
     private GameObject _CreateSymbol(int x,int y)
-    {
+    {        
         GameObject newSymbol = GameManager.instance._nodePooling.GetNode(this.ParentBoard);
         Symbol symbols = newSymbol.GetComponent<Symbol>();
         symbols.GetComponent<RectTransform>().sizeDelta = new Vector2(this._spacingX - 1, this._spacingY - 1);
@@ -172,8 +157,8 @@ public class Board : MonoBehaviour
                 }
             }
             symbols.InitSymbol(_type, _color);
-            string symName = _type == SymbolType.Normal ? _color.ToString() : _type.ToString();
-            symbols.name = "Symbol_" + symName;
+            /*string symName = _type == SymbolType.Normal ? _color.ToString() : _type.ToString();
+            symbols.name = "Symbol_" + symName;*/
         }
     }
 
@@ -194,7 +179,7 @@ public class Board : MonoBehaviour
     private int _FindIndexOfLowerNull(int x)
     {
         int lowerNull = 99;
-        for (int y = (this._boardWidth - 1); y >= 0; y--)
+        for (int y = (this._boardHight - 1); y >= 0; y--)
         {
             if (this._boardGame[x, y].symbol == null)
             {

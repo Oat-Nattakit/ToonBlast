@@ -1,9 +1,6 @@
-using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -43,6 +40,13 @@ public class Symbol : MonoBehaviour
         this._SettingSymbolColor(_color);
         this._SettingSymbolType(_type);
         this._InitOffset();
+        this._SetName();
+    }
+
+    private void _SetName()
+    {
+        string symName = this._typeSymbol == SymbolType.Normal ? this.ColorSymbol.ToString() : this._typeSymbol.ToString();
+        this.name = "Symbol_" + symName;
     }
 
     public void MovaToTarget(Vector2 _targetPos, float duration)

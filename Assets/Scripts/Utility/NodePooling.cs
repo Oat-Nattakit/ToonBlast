@@ -8,16 +8,20 @@ public class NodePooling : MonoBehaviour
 
     private List<GameObject> _pool = new List<GameObject>();
 
-    public int size()
+    public void Clear()
     {
-        return _pool.Count; 
-    }    
+        foreach (var item in _pool)
+        {
+            this.ReturntoPool(item);
+            //Destroy(item.gameObject);
+        }
+
+        //this._pool.Clear();
+    }
 
     public GameObject GetNode(GameObject parent)
-    {
-        
-        GameObject gameObj = this._pool.Find((obj) => obj.activeSelf == false);
-     
+    {        
+        GameObject gameObj = this._pool.Find((obj) => obj.activeSelf == false);     
         if (gameObj == null)
         {
             gameObj = Instantiate(symbolPrefabs);
