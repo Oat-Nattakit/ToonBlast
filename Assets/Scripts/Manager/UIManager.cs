@@ -10,6 +10,9 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Button _btnStart;
     public Button btnStart { get => this._btnStart; }
 
+    [SerializeField] private Button _btnExit;
+    public Button btnExit { get => this._btnExit; }
+
     [SerializeField] private TextMeshProUGUI _textScore = null;
 
     [Header("Board Setting Space")]

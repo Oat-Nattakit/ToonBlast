@@ -37,6 +37,13 @@ public class GameplayManager : MonoBehaviour
         this.RemoveSymbol.Init(this.BoardGame.BoardGame);
     }
 
+    public void ResetBoard()
+    {
+        this._callBaclScore = null;
+        this.BoardGame.ClearBoard();
+        
+    }
+
     public void InitCallbackScore(Action<int> _callback)
     {
         this._callBaclScore = _callback;
@@ -91,8 +98,6 @@ public class GameplayManager : MonoBehaviour
             
             this.isMove = false;
         }
-
-
     }
 
     private void _CollectSymbolNormalMatch(Symbol symbol, List<Symbol> symbolMatch)

@@ -16,9 +16,11 @@ public class GameManager : MonoBehaviour
     [HideInInspector] public int BoardWidth = 8;
     [HideInInspector] public int BoardHight = 8;
 
+    [SerializeField] private RectTransform _refScreenSize;
+
     [Header("Symbol size")]
-    public int spacingX = 0;
-    public int spacingY = 0;
+    [HideInInspector] public int spacingX = 101;
+    [HideInInspector] public int spacingY = 101;
 
     [Header("Target Spawn Special")]
     public int LimitBomb = 0;
@@ -43,6 +45,7 @@ public class GameManager : MonoBehaviour
     private void _reset()
     {
         this._currentScore = 0;
+        this._gameplay.ResetBoard();
     }
 
     private void _initUI()
@@ -54,10 +57,17 @@ public class GameManager : MonoBehaviour
     private void _InitBtnStart()
     {
         var startBtn = this._uiManager.btnStart;
+        var endBtn = this._uiManager.btnExit;
         startBtn.onClick.AddListener(() =>
         {
             this._uiManager.HidePanelStart(true);
             this._initGamePlay();
+        });
+
+        endBtn.onClick.AddListener(() =>
+        {
+            this._uiManager.HidePanelStart(false);
+            this._reset();
         });
     }
 
@@ -65,6 +75,7 @@ public class GameManager : MonoBehaviour
     {
         this.BoardHight = this._uiManager.HightSetting;
         this.BoardWidth = this._uiManager.WidthSetting;
+        this._checkScreenSize();
         this._gameplay.Init();
         this._gameplay.InitCallbackScore(this._CalculateScore);
     }
@@ -77,5 +88,25 @@ public class GameManager : MonoBehaviour
         int ScoreValue = (baseScore * scoreValue) + (multiply * baseScore);
         this._currentScore += ScoreValue;
         this._uiManager.UpdateScore(this._currentScore);
+    }
+
+    private void _checkScreenSize()
+    {
+        int AvaScreenWidth = (int)this._refScreenSize.rect.width;
+        int AvaScreenHidth = (int)this._refScreenSize.rect.height;
+       
+        var findSizeX = (AvaScreenWidth / this.BoardWidth);
+        var findSizeY = (AvaScreenHidth / this.BoardHight);
+
+        bool useSizeX = this.spacingX <= findSizeX;
+        bool useSizeY = this.spacingY <= findSizeY;
+
+        if (useSizeX != true || useSizeY != true)
+        {
+            int size = (findSizeX <= findSizeY) ? findSizeX : findSizeY;
+
+            this.spacingX = size;
+            this.spacingY = size;
+        }       
     }
 }

@@ -32,6 +32,18 @@ public class Board : MonoBehaviour
         this._spacingY = GameManager.instance.spacingY;
     }
 
+    public void ClearBoard()
+    {
+        for (int y = 0; y < _boardHight; y++)
+        {
+            for (int x = 0; x < _boardWidth; x++)
+            {
+                Destroy(this._boardGame[x, y].symbol);               
+            }
+        }
+        this._boardGame = null;
+    }
+
 
     public void InitBoard()
     {
@@ -44,6 +56,7 @@ public class Board : MonoBehaviour
                 Vector2 position = new Vector2(x * _spacingX, y * _spacingY);
                 int randomIndex = this._RandomColorSymbol();
                 GameObject symbols = Instantiate(this.symbolPrefabs, this.ParentBoard.transform);
+                symbols.GetComponent<RectTransform>().sizeDelta = new Vector2(this._spacingX - 1, this._spacingY - 1);
                 symbols.transform.localPosition = position;
                 symbols.GetComponent<Symbol>().SetIndicies(x, y);
                 symbols.GetComponent<Symbol>().InitSymbol(SymbolType.Normal, (SymbolColor)randomIndex);
@@ -127,6 +140,7 @@ public class Board : MonoBehaviour
     public void SpawnSymbolAtTop(int x, int index, SymbolType _type, SymbolColor _color, List<GameObject> collectSym)
     {
         GameObject newSymbol = Instantiate(this.symbolPrefabs, this.ParentBoard.transform);
+        newSymbol.GetComponent<RectTransform>().sizeDelta = new Vector2(this._spacingX - 1, this._spacingY - 1);
         Symbol symbols = newSymbol.GetComponent<Symbol>();
         symbols.transform.localPosition = new Vector2((x * this._spacingX), ((this._boardHight * this._spacingY) / 2) + ((index) * this._spacingY));
         symbols.SetIndicies(x, index);

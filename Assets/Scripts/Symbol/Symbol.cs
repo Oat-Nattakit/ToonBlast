@@ -18,6 +18,9 @@ public class Symbol : MonoBehaviour
     public SymbolColor ColorSymbol { get => this._symbolColor; }
     public SymbolType TypeSymbol { get => this._typeSymbol; }
 
+    [SerializeField] private RectTransform _rectTransform;
+    [SerializeField] private BoxCollider2D _boxCollider;
+
     public int xIndex, yIndex;
 
     public List<Symbol> currenMatch = new List<Symbol>();
@@ -38,6 +41,7 @@ public class Symbol : MonoBehaviour
     {
         this._SettingSymbolColor(_color);
         this._SettingSymbolType(_type);
+        this._InitOffset();
     }
 
     public void MovaToTarget(Vector2 _targetPos, float duration)
@@ -101,6 +105,15 @@ public class Symbol : MonoBehaviour
                 break;
 
         }
+    }
+
+    private void _InitOffset()
+    {
+        Debug.LogWarning("sdfsdfdsf");
+        float w = this._rectTransform.sizeDelta.x;
+        float h = this._rectTransform.sizeDelta.y;
+        this._boxCollider.size= new Vector2 (w, h);
+        this._boxCollider.offset = new Vector2 (w/2, h/2);
     }
     #endregion
 

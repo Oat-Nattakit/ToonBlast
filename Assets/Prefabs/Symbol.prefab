@@ -207,6 +207,8 @@ MonoBehaviour:
   symbolSpecial: {fileID: 8590284316982179723}
   _typeSymbol: 0
   _symbolColor: 3
+  _rectTransform: {fileID: 8328981592072901670}
+  _boxCollider: {fileID: 4099092980558713450}
   xIndex: 0
   yIndex: 0
   currenMatch: []
