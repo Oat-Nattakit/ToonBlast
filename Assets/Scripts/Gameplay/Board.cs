@@ -52,8 +52,7 @@ public class Board : MonoBehaviour
         for (int y = 0; y < _boardHight; y++)
         {
             for (int x = 0; x < _boardWidth; x++)
-            {
-                
+            {                
                 int randomIndex = this._RandomColorSymbol();
                 GameObject newSymbol = this._CreateSymbol(x,y);
                 Symbol symbols = newSymbol.GetComponent<Symbol>();
@@ -63,7 +62,6 @@ public class Board : MonoBehaviour
                 this._boardGame[x, y] = new Node(true, newSymbol);
             }
         }
-
         this._SetBoardSize();
     } 
 
@@ -76,8 +74,7 @@ public class Board : MonoBehaviour
         this._boardGame[x, y] = new Node(true, newSymbol);
         return newSymbol;
     }
-
-    #region
+    
     private void _SetBoardSize()
     {
         float boardSizeX = (this._boardWidth * this._spacingX);
@@ -146,7 +143,7 @@ public class Board : MonoBehaviour
         collectSym.ForEach((symbol) => { this.MoveSymbolToPosition(symbol); });
         await UniTask.WaitForSeconds(this._durationMove);
     }
-    #endregion
+    
     public void SpawnSymbolAtTop(int x, int index, SymbolType _type, SymbolColor _color, List<GameObject> collectSym)
     {
         GameObject newSymbol = this._CreateSymbol(x,index);
