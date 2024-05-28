@@ -1850,6 +1850,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 759443450}
+  - component: {fileID: 759443451}
   m_Layer: 5
   m_Name: Board_Panel
   m_TagString: Untagged
@@ -1876,6 +1877,19 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &759443451
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 759443449}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31a19414c41e5ae4aae2af33fee712f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ShowMaskGraphic: 0
 --- !u!1 &780756262
 GameObject:
   m_ObjectHideFlags: 0
@@ -3210,7 +3224,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3a5e4ebd88cc7c4f9f5914887b33a37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  symbolPrefabs: {fileID: 8961304934310255268, guid: 1c83f95ee42058e4a9cd3e16d0d3ca19, type: 3}
+  symbolPrefabs: {fileID: 0}
   ParentBoard: {fileID: 759443449}
   _durationMove: 0.2
 --- !u!1 &1675041061

@@ -53,21 +53,31 @@ public class Board : MonoBehaviour
         {
             for (int x = 0; x < _boardWidth; x++)
             {
-                Vector2 position = new Vector2(x * _spacingX, y * _spacingY);
+                
                 int randomIndex = this._RandomColorSymbol();
-                GameObject symbols = GameManager.instance._nodePooling.GetNode(this.ParentBoard);      
-                symbols.GetComponent<RectTransform>().sizeDelta = new Vector2(this._spacingX - 1, this._spacingY - 1);
+                GameObject newSymbol = this._CreateSymbol(x,y);
+                Symbol symbols = newSymbol.GetComponent<Symbol>();
+                Vector2 position = new Vector2(x * _spacingX, y * _spacingY);
                 symbols.transform.localPosition = position;
-                symbols.GetComponent<Symbol>().SetIndicies(x, y);
-                symbols.GetComponent<Symbol>().InitSymbol(SymbolType.Normal, (SymbolColor)randomIndex);
-                symbols.name = "Symbol_" + (SymbolColor)randomIndex;
-                this._boardGame[x, y] = new Node(true, symbols);
+                symbols.InitSymbol(SymbolType.Normal, (SymbolColor)randomIndex);
+                this._boardGame[x, y] = new Node(true, newSymbol);
             }
         }
 
         this._SetBoardSize();
     } 
 
+    private GameObject _CreateSymbol(int x,int y)
+    {
+        GameObject newSymbol = GameManager.instance._nodePooling.GetNode(this.ParentBoard);
+        Symbol symbols = newSymbol.GetComponent<Symbol>();
+        symbols.GetComponent<RectTransform>().sizeDelta = new Vector2(this._spacingX - 1, this._spacingY - 1);
+        symbols.SetIndicies(x, y);
+        this._boardGame[x, y] = new Node(true, newSymbol);
+        return newSymbol;
+    }
+
+    #region
     private void _SetBoardSize()
     {
         float boardSizeX = (this._boardWidth * this._spacingX);
@@ -136,15 +146,13 @@ public class Board : MonoBehaviour
         collectSym.ForEach((symbol) => { this.MoveSymbolToPosition(symbol); });
         await UniTask.WaitForSeconds(this._durationMove);
     }
-
+    #endregion
     public void SpawnSymbolAtTop(int x, int index, SymbolType _type, SymbolColor _color, List<GameObject> collectSym)
     {
-        GameObject newSymbol = GameManager.instance._nodePooling.GetNode(this.ParentBoard);    
-        newSymbol.GetComponent<RectTransform>().sizeDelta = new Vector2(this._spacingX - 1, this._spacingY - 1);
+        GameObject newSymbol = this._CreateSymbol(x,index);
         Symbol symbols = newSymbol.GetComponent<Symbol>();
-        symbols.transform.localPosition = new Vector2((x * this._spacingX), ((this._boardHight * this._spacingY) / 2) + ((index) * this._spacingY));
-        symbols.SetIndicies(x, index);
-        this._boardGame[x, index] = new Node(true, newSymbol);
+        Vector2 position = new Vector2((x * this._spacingX), ((this._boardHight * this._spacingY) / 2) + ((index) * this._spacingY));
+        symbols.transform.localPosition = position;
         collectSym.Add(newSymbol);
     }
 
