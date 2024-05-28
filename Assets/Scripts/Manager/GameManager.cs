@@ -13,8 +13,8 @@ public class GameManager : MonoBehaviour
     public GameplayManager GameplayManager { get => this._gameplay; }
 
     [Header("Board Space")]
-    public int BoardWidth = 8;
-    public int BoardHight = 8;
+    [HideInInspector] public int BoardWidth = 8;
+    [HideInInspector] public int BoardHight = 8;
 
     [Header("Symbol size")]
     public int spacingX = 0;
@@ -24,7 +24,7 @@ public class GameManager : MonoBehaviour
     public int LimitBomb = 0;
     public int LimitDisco = 0;
 
-    private int _currentScore = 0;  
+    private int _currentScore = 0;
 
     private void Awake()
     {
@@ -44,7 +44,7 @@ public class GameManager : MonoBehaviour
     {
         this._currentScore = 0;
     }
-    
+
     private void _initUI()
     {
         this._uiManager.InitUI();
@@ -59,13 +59,15 @@ public class GameManager : MonoBehaviour
             this._uiManager.HidePanelStart(true);
             this._initGamePlay();
         });
-    }    
+    }
 
     private void _initGamePlay()
     {
+        this.BoardHight = this._uiManager.HightSetting;
+        this.BoardWidth = this._uiManager.WidthSetting;
         this._gameplay.Init();
         this._gameplay.InitCallbackScore(this._CalculateScore);
-    }    
+    }
 
     private void _CalculateScore(int score)
     {
@@ -73,7 +75,7 @@ public class GameManager : MonoBehaviour
         int scoreValue = score / 2;
         int multiply = (score / 3);
         int ScoreValue = (baseScore * scoreValue) + (multiply * baseScore);
-        this._currentScore += ScoreValue;    
+        this._currentScore += ScoreValue;
         this._uiManager.UpdateScore(this._currentScore);
     }
 }

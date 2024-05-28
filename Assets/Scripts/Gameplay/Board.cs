@@ -57,8 +57,8 @@ public class Board : MonoBehaviour
 
     private void _SetBoardSize()
     {
-        float boardSizeX = (this._boardHight * this._spacingX);
-        float boardSizeY = (this._boardWidth * this._spacingY);
+        float boardSizeX = (this._boardWidth * this._spacingX);
+        float boardSizeY = (this._boardHight * this._spacingY);
         this.ParentBoard.transform.localPosition = new Vector2(-boardSizeX / 2, -boardSizeY / 2);
     }
 
