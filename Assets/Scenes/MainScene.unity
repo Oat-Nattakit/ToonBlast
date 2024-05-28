@@ -3616,6 +3616,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1931039925}
   - component: {fileID: 1931039926}
+  - component: {fileID: 1931039927}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -3653,6 +3654,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _uiManager: {fileID: 611981488}
   _gameplay: {fileID: 1800924693}
+  _nodePooling: {fileID: 1931039927}
   BoardWidth: 0
   BoardHight: 0
   _refScreenSize: {fileID: 780756263}
@@ -3660,6 +3662,19 @@ MonoBehaviour:
   spacingY: 101
   LimitBomb: 6
   LimitDisco: 10
+--- !u!114 &1931039927
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1931039924}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed65ef881796a914e827ffaac63125d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  symbolPrefabs: {fileID: 8961304934310255268, guid: 1c83f95ee42058e4a9cd3e16d0d3ca19, type: 3}
 --- !u!1 &1932756771
 GameObject:
   m_ObjectHideFlags: 0

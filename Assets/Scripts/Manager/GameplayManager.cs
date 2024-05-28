@@ -18,7 +18,7 @@ public class GameplayManager : MonoBehaviour
 
     private bool isMove = false;
 
-    private Action<int> _callBaclScore;
+    private Action<int> _callBaclScore;    
 
     public void Init()
     {

@@ -59,8 +59,7 @@ public class Symbol : MonoBehaviour
         Vector3Int size = new Vector3Int(0, 0, 0);
         this.transform.DOScale(size, duration)
             .SetEase(Ease.OutQuart)
-            .OnComplete(() =>
-            {
+            .OnComplete(() =>            {
                 _onComplete?.Invoke();
             });
     }
@@ -108,8 +107,7 @@ public class Symbol : MonoBehaviour
     }
 
     private void _InitOffset()
-    {
-        Debug.LogWarning("sdfsdfdsf");
+    {        
         float w = this._rectTransform.sizeDelta.x;
         float h = this._rectTransform.sizeDelta.y;
         this._boxCollider.size= new Vector2 (w, h);

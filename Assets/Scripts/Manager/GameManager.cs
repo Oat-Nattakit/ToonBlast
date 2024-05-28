@@ -12,6 +12,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameplayManager _gameplay;
     public GameplayManager GameplayManager { get => this._gameplay; }
 
+    public NodePooling _nodePooling;
+   
+
     [Header("Board Space")]
     [HideInInspector] public int BoardWidth = 8;
     [HideInInspector] public int BoardHight = 8;

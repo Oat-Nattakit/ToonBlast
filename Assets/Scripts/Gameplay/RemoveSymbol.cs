@@ -27,12 +27,12 @@ public class RemoveSymbol : MonoBehaviour
 
     public async UniTask RemoveSymbolObject(List<Symbol> symbolRemove)
     {
-        float _duration = 0.1f;
+        float _duration = 0.5f;
         foreach (Symbol symbol in symbolRemove)
         {
             int Xindex = symbol.xIndex;
             int Yindex = symbol.yIndex;
-            symbol.ActionDestory(_duration, () => { Destroy(symbol.gameObject);});
+            symbol.ActionDestory(_duration, () => { GameManager.instance._nodePooling.ReturntoPool(symbol.gameObject);  /*Destroy(symbol.gameObject);*/});
             
             this._boardGame[Xindex, Yindex] = new Node(true, null);
         }

@@ -21,7 +21,7 @@ public class Board : MonoBehaviour
 
     public GameObject ParentBoard;
 
-    [SerializeField]private float _durationMove = 0.2f;
+    [SerializeField] private float _durationMove = 0.2f;
 
     public void Init()
     {
@@ -38,7 +38,7 @@ public class Board : MonoBehaviour
         {
             for (int x = 0; x < _boardWidth; x++)
             {
-                Destroy(this._boardGame[x, y].symbol);               
+                Destroy(this._boardGame[x, y].symbol);
             }
         }
         this._boardGame = null;
@@ -55,7 +55,7 @@ public class Board : MonoBehaviour
             {
                 Vector2 position = new Vector2(x * _spacingX, y * _spacingY);
                 int randomIndex = this._RandomColorSymbol();
-                GameObject symbols = Instantiate(this.symbolPrefabs, this.ParentBoard.transform);
+                GameObject symbols = GameManager.instance._nodePooling.GetNode(this.ParentBoard);      
                 symbols.GetComponent<RectTransform>().sizeDelta = new Vector2(this._spacingX - 1, this._spacingY - 1);
                 symbols.transform.localPosition = position;
                 symbols.GetComponent<Symbol>().SetIndicies(x, y);
@@ -65,8 +65,8 @@ public class Board : MonoBehaviour
             }
         }
 
-       this._SetBoardSize();
-    }
+        this._SetBoardSize();
+    } 
 
     private void _SetBoardSize()
     {
@@ -139,7 +139,7 @@ public class Board : MonoBehaviour
 
     public void SpawnSymbolAtTop(int x, int index, SymbolType _type, SymbolColor _color, List<GameObject> collectSym)
     {
-        GameObject newSymbol = Instantiate(this.symbolPrefabs, this.ParentBoard.transform);
+        GameObject newSymbol = GameManager.instance._nodePooling.GetNode(this.ParentBoard);    
         newSymbol.GetComponent<RectTransform>().sizeDelta = new Vector2(this._spacingX - 1, this._spacingY - 1);
         Symbol symbols = newSymbol.GetComponent<Symbol>();
         symbols.transform.localPosition = new Vector2((x * this._spacingX), ((this._boardHight * this._spacingY) / 2) + ((index) * this._spacingY));
