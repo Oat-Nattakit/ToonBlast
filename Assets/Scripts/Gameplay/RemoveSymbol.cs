@@ -27,7 +27,7 @@ public class RemoveSymbol : MonoBehaviour
 
     public async UniTask RemoveSymbolObject(List<Symbol> symbolRemove)
     {
-        float _duration = 0.5f;
+        float _duration = 2f;
         foreach (Symbol symbol in symbolRemove)
         {
             int Xindex = symbol.xIndex;

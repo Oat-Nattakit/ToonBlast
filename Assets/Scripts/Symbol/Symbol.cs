@@ -11,6 +11,7 @@ public class Symbol : MonoBehaviour
 {
     [SerializeField] private Image symbolImage;
     [SerializeField] private Image symbolSpecial;
+    [SerializeField] private Image freamSymbol;
 
     [SerializeField] private SymbolType _typeSymbol = SymbolType.Normal;
     [SerializeField] private SymbolColor _symbolColor = SymbolColor.Red;
@@ -56,10 +57,13 @@ public class Symbol : MonoBehaviour
 
     public void ActionDestory(float duration, Action _onComplete)
     {
-        Vector3Int size = new Vector3Int(0, 0, 0);
-        this.transform.DOScale(size, duration)
+        Vector3 size = Vector3.zero;
+        this.freamSymbol.transform.DOScale(size, duration)
             .SetEase(Ease.OutQuart)
-            .OnComplete(() =>            {
+            .OnComplete(() =>
+            {
+                this.transform.localScale = size;
+                this.freamSymbol.transform.localScale = Vector3.one;
                 _onComplete?.Invoke();
             });
     }
@@ -107,11 +111,11 @@ public class Symbol : MonoBehaviour
     }
 
     private void _InitOffset()
-    {        
+    {
         float w = this._rectTransform.sizeDelta.x;
         float h = this._rectTransform.sizeDelta.y;
-        this._boxCollider.size= new Vector2 (w, h);
-        this._boxCollider.offset = new Vector2 (w/2, h/2);
+        this._boxCollider.size = new Vector2(w, h);
+        this._boxCollider.offset = new Vector2(w / 2, h / 2);
     }
     #endregion
 
