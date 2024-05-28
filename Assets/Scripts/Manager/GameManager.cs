@@ -70,8 +70,9 @@ public class GameManager : MonoBehaviour
     private void _CalculateScore(int score)
     {
         int baseScore = 1;
-        int multiply = score / 2;
-        int ScoreValue = baseScore * multiply;
+        int scoreValue = score / 2;
+        int multiply = (score / 3);
+        int ScoreValue = (baseScore * scoreValue) + (multiply * baseScore);
         this._currentScore += ScoreValue;    
         this._uiManager.UpdateScore(this._currentScore);
     }
