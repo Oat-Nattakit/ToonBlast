@@ -18,6 +18,8 @@ public class GameplayManager : MonoBehaviour
 
     private bool isMove = false;
 
+    private Action<int> _callBaclScore;
+
     public void Init()
     {
         this.BoardHight = GameManager.instance.BoardHight;
@@ -35,7 +37,10 @@ public class GameplayManager : MonoBehaviour
         this.RemoveSymbol.Init(this.BoardGame.BoardGame);
     }
 
-
+    public void InitCallbackScore(Action<int> _callback)
+    {
+        this._callBaclScore = _callback;
+    }
 
     private async void Update()
     {
@@ -76,12 +81,14 @@ public class GameplayManager : MonoBehaviour
         if (symbolMatch.Count > 0)
         {
             this.isMove = true;
+            this._callBaclScore.Invoke(symbolMatch.Count); 
             Vector2Int refIndex = new Vector2Int(_symbol.xIndex,_symbol.yIndex);
             await this.RemoveSymbol.RemoveSymbolObject(symbolMatch);
             List<int> spawnPosx = await this.BoardGame.Refill();
             await this.BoardGame.SpawnSymbolAddPosX(refIndex, spawnPosx, special);
             await UniTask.Delay(100);
             this.FindNearberSymbol.FindNerberNormalMatch();
+            
             this.isMove = false;
         }
 

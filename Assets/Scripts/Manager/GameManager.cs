@@ -24,6 +24,8 @@ public class GameManager : MonoBehaviour
     public int LimitBomb = 0;
     public int LimitDisco = 0;
 
+    private int _currentScore = 0;  
+
     private void Awake()
     {
         if (instance == null)
@@ -34,8 +36,18 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        this._uiManager.InitUI();
+        this._reset();
+        this._initUI();
+    }
 
+    private void _reset()
+    {
+        this._currentScore = 0;
+    }
+    
+    private void _initUI()
+    {
+        this._uiManager.InitUI();
         this._InitBtnStart();
     }
 
@@ -45,7 +57,22 @@ public class GameManager : MonoBehaviour
         startBtn.onClick.AddListener(() =>
         {
             this._uiManager.HidePanelStart(true);
-            this._gameplay.Init();
+            this._initGamePlay();
         });
+    }    
+
+    private void _initGamePlay()
+    {
+        this._gameplay.Init();
+        this._gameplay.InitCallbackScore(this._CalculateScore);
+    }    
+
+    private void _CalculateScore(int score)
+    {
+        int baseScore = 1;
+        int multiply = score / 2;
+        int ScoreValue = baseScore * multiply;
+        this._currentScore += ScoreValue;    
+        this._uiManager.UpdateScore(this._currentScore);
     }
 }
