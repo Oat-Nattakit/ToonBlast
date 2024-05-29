@@ -35,6 +35,7 @@ public class UIManager : MonoBehaviour
     {
         this._panelStart.SetActive(true);
         this._textScore.text = "Score : 0";
+        //this._testSetting();
         this._OnSliderValueChange();
         this._UpdatetextBoardSize();
     }
@@ -55,6 +56,12 @@ public class UIManager : MonoBehaviour
         this._widthSetting.onValueChanged.AddListener((value)=> { this._UpdatetextBoardSize();});
         this._hightSetting.onValueChanged.AddListener((value)=> { this._UpdatetextBoardSize();});
     }
+    
+    /*private void _testSetting()
+    {
+        this._widthSetting.value = GameManager.instance.BoardWidth;
+        this._hightSetting.value = GameManager.instance.BoardHight;
+    }*/
 
     private void _UpdatetextBoardSize()
     {        
@@ -64,8 +71,7 @@ public class UIManager : MonoBehaviour
     public void ClickSetting(bool isShow)
     {
         this._panelButton.SetActive(!isShow);
-        this._panelSetting.SetActive(isShow);
-        //this.pa
+        this._panelSetting.SetActive(isShow);       
     }
 
 }

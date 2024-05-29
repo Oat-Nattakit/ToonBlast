@@ -21,6 +21,8 @@ public class Board : MonoBehaviour
 
     [SerializeField] private float _durationMove = 0.2f;
 
+    private Action test;
+
     public void Init()
     {
         this._boardHight = GameManager.instance.BoardHight;
@@ -28,29 +30,24 @@ public class Board : MonoBehaviour
 
         this._spacingX = GameManager.instance.spacingX;
         this._spacingY = GameManager.instance.spacingY;
+
+        this._boardGame = new Node[_boardWidth, _boardHight];
+
         this._SetBoardSize();
     }
 
-    public void InitBoard()
-    {        
-        this._boardGame = new Node[_boardWidth, _boardHight];
-        for (int y = 0; y < _boardHight; y++)
-        {
-            for (int x = 0; x < _boardWidth; x++)
-            {                
-                int randomIndex = this._RandomColorSymbol();
-                GameObject newSymbol = this._CreateSymbol(x,y);
-                Symbol symbols = newSymbol.GetComponent<Symbol>();
-                Vector2 position = new Vector2(x * _spacingX, y * _spacingY);      
-                symbols.transform.localPosition = position;
-                symbols.InitSymbol(SymbolType.Normal, (SymbolColor)randomIndex);
-                this._boardGame[x, y] = new Node(true, newSymbol);
-            }
-        }        
-    } 
+    public void CreateSymbolOnBoard(Vector2Int index, SymbolColor symbolColor)
+    {
+        GameObject newSymbol = this._CreateSymbol(index.x, index.y);
+        Symbol symbols = newSymbol.GetComponent<Symbol>();
+        Vector2 position = new Vector2(index.x * _spacingX, index.y * _spacingY);
+        symbols.transform.localPosition = position;
+        symbols.InitSymbol(SymbolType.Normal, symbolColor);
+        this._boardGame[index.x, index.y] = new Node(true, newSymbol);
+    }
 
-    private GameObject _CreateSymbol(int x,int y)
-    {        
+    private GameObject _CreateSymbol(int x, int y)
+    {
         GameObject newSymbol = GameManager.instance._nodePooling.GetNode(this.ParentBoard);
         Symbol symbols = newSymbol.GetComponent<Symbol>();
         symbols.GetComponent<RectTransform>().sizeDelta = new Vector2(this._spacingX - 1, this._spacingY - 1);
@@ -58,14 +55,14 @@ public class Board : MonoBehaviour
         this._boardGame[x, y] = new Node(true, newSymbol);
         return newSymbol;
     }
-    
+
     private void _SetBoardSize()
     {
         float boardSizeX = (this._boardWidth * this._spacingX);
         float boardSizeY = (this._boardHight * this._spacingY);
         this.ParentBoard.transform.localPosition = new Vector2(-boardSizeX / 2, -boardSizeY / 2);
         RectTransform rect = this.ParentBoard.GetComponent<RectTransform>();
-        rect.sizeDelta = new Vector2(boardSizeX, boardSizeY);   
+        rect.sizeDelta = new Vector2(boardSizeX, boardSizeY);
     }
 
     public async UniTask<List<int>> Refill()
@@ -122,6 +119,7 @@ public class Board : MonoBehaviour
 
             int randomIndex = this._RandomColorSymbol();
             SymbolColor _color = (SymbolColor)randomIndex;
+
             this.SpawnSymbolAtTop(spawPosX[i], index, SymbolType.Normal, _color, collectSym);
         }
         var min = collectPos.OrderBy(v => v.sqrMagnitude).First();
@@ -129,12 +127,12 @@ public class Board : MonoBehaviour
         collectSym.ForEach((symbol) => { this.MoveSymbolToPosition(symbol); });
         await UniTask.WaitForSeconds(this._durationMove);
     }
-    
-    public void SpawnSymbolAtTop(int x, int index, SymbolType _type, SymbolColor _color, List<GameObject> collectSym)
+
+    private void SpawnSymbolAtTop(int x, int y, SymbolType _type, SymbolColor _color, List<GameObject> collectSym)
     {
-        GameObject newSymbol = this._CreateSymbol(x,index);
+        GameObject newSymbol = this._CreateSymbol(x, y);
         Symbol symbols = newSymbol.GetComponent<Symbol>();
-        Vector2 position = new Vector2((x * this._spacingX), ((this._boardHight * this._spacingY) / 2) + ((index) * this._spacingY));
+        Vector2 position = new Vector2((x * this._spacingX), ((this._boardHight * this._spacingY) / 2) + ((y) * this._spacingY));
         symbols.transform.localPosition = position;
         collectSym.Add(newSymbol);
     }
@@ -158,8 +156,6 @@ public class Board : MonoBehaviour
                 }
             }
             symbols.InitSymbol(_type, _color);
-            /*string symName = _type == SymbolType.Normal ? _color.ToString() : _type.ToString();
-            symbols.name = "Symbol_" + symName;*/
         }
     }
 

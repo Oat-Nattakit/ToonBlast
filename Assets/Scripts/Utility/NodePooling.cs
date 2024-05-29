@@ -12,11 +12,8 @@ public class NodePooling : MonoBehaviour
     {
         foreach (var item in _pool)
         {
-            this.ReturntoPool(item);
-            //Destroy(item.gameObject);
-        }
-
-        //this._pool.Clear();
+            this.ReturntoPool(item);            
+        }      
     }
 
     public GameObject GetNode(GameObject parent)

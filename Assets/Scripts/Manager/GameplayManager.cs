@@ -1,7 +1,8 @@
 using Cysharp.Threading.Tasks;
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
 using UnityEngine;
 
 public class GameplayManager : MonoBehaviour
@@ -18,7 +19,7 @@ public class GameplayManager : MonoBehaviour
 
     private bool isMove = false;
 
-    private Action<int> _callBaclScore;    
+    private Action<int> _callBackScore;
 
     public void Init()
     {
@@ -29,22 +30,67 @@ public class GameplayManager : MonoBehaviour
         this.spacingY = GameManager.instance.spacingY;
 
         this.BoardGame.Init();
-        this.BoardGame.InitBoard();
-
         this.FindNearberSymbol.Init(this.BoardGame.BoardGame);
-        this.FindNearberSymbol.FindNerberNormalMatch();
 
+        this._createBoardGame();
+        this.FindNearberSymbol.FindNerberNormalMatch();
         this.RemoveSymbol.Init(this.BoardGame.BoardGame);
+    }
+
+    private void _createBoardGame()
+    {
+        for (int x = 0; x < BoardWidth; x++)
+        {
+            for (int y = 0; y < this.BoardHight; y++)
+            {
+                Vector2Int posi = new Vector2Int(x, y);
+                SymbolColor color = this._createSymbolColor(posi);   
+                this.BoardGame.CreateSymbolOnBoard(posi, color);
+            }
+        }
+    }
+
+    private SymbolColor _createSymbolColor(Vector2Int pos)
+    {
+        SymbolColor color = this._RandomColorSymbol();
+        int matchCount = this.FindNearberSymbol.tesetFindM(color, pos);       
+
+        if (matchCount > 1)
+        {
+            float matchChange = Mathf.Round((UnityEngine.Random.Range(0, 1f) * 100));           
+            if (matchChange > 20)
+            {
+                bool fild = true;
+                while (fild)
+                {
+                    SymbolColor newCol = this._RandomColorSymbol();
+                    if (color != newCol)
+                    {
+                        color = newCol;                       
+                        fild = false;
+                    }
+                }
+            }           
+        }
+        return color;
+    }
+
+    private SymbolColor _RandomColorSymbol()
+    {
+        int rangeValue = Enum.GetNames(typeof(SymbolColor)).Length;
+        int randomIndex = UnityEngine.Random.Range(0, rangeValue);
+        SymbolColor symbolColor = (SymbolColor)randomIndex;
+        return symbolColor;
     }
 
     public void ResetBoard()
     {
-        this._callBaclScore = null;        
+        this._callBackScore = null;
     }
 
     public void InitCallbackScore(Action<int> _callback)
     {
-        this._callBaclScore = _callback;
+        this._callBackScore = _callback;
     }
 
     private async void Update()
@@ -86,14 +132,14 @@ public class GameplayManager : MonoBehaviour
         if (symbolMatch.Count > 0)
         {
             this.isMove = true;
-            this._callBaclScore.Invoke(symbolMatch.Count); 
-            Vector2Int refIndex = new Vector2Int(_symbol.xIndex,_symbol.yIndex);
+            this._callBackScore.Invoke(symbolMatch.Count);
+            Vector2Int refIndex = new Vector2Int(_symbol.xIndex, _symbol.yIndex);
             await this.RemoveSymbol.RemoveSymbolObject(symbolMatch);
             List<int> spawnPosx = await this.BoardGame.Refill();
             await this.BoardGame.SpawnSymbolAddPosX(refIndex, spawnPosx, special);
             await UniTask.Delay(100);
             this.FindNearberSymbol.FindNerberNormalMatch();
-            
+
             this.isMove = false;
         }
     }

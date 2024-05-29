@@ -45,7 +45,7 @@ public class FindNearberSymbol : MonoBehaviour
 
     public void FindNerberSpaMatch(Symbol symbols)
     {
-        this._ClearFindMatch();        
+        this._ClearFindMatch();
         this._FindMatchSymbolType(symbols);
     }
 
@@ -94,6 +94,51 @@ public class FindNearberSymbol : MonoBehaviour
                 symbol.currenMatch.Add(symbolNear);
             }
         }
+
+    }
+
+    public int tesetFindM(SymbolColor color, Vector2Int symbolPos)
+    {
+        List<Symbol> symbols = new List<Symbol>();
+        this.trest_FindNormalMatching(color, symbolPos, symbols);
+        return symbols.Count;
+        //Debug.LogWarning(symbolPos+" => " +symbols.Count);
+        /*this.trest_FindNormalMatching(symbols, new Vector2Int(0, 1));
+        this.trest_FindNormalMatching(symbols, new Vector2Int(0, -1));
+        this.trest_FindNormalMatching(symbols, new Vector2Int(1, 0));
+        this.trest_FindNormalMatching(symbols, new Vector2Int(-1, 0));*/
+
+        //  Debug.LogWarning("["+symbol.xIndex+":"+symbol.yIndex+"] => "+   symbol.currenMatch.Count);
+    }
+
+
+    private void trest_FindNormalMatching(SymbolColor color, Vector2Int symbolPos, List<Symbol> symbol/*, Vector2Int pos*/)
+    {
+        //SymbolColor color = symbol.ColorSymbol;
+
+
+        for (int x = -1; x <= 1; x++)
+        {
+            for (int y = -1; y <= 1; y++)
+            {
+                int xIndex = symbolPos.x + x;
+                int yIndex = symbolPos.y + y;
+
+                if (xIndex >= 0 && xIndex < BoardWidth && yIndex >= 0 && yIndex < BoardHight)
+                {
+
+                    if (this._boardGame[xIndex, yIndex] != null)
+                    {
+                        Symbol symbolNear = this._boardGame[xIndex, yIndex].symbol.GetComponent<Symbol>();
+                        if (symbolNear.ColorSymbol == color && symbolNear.TypeSymbol == SymbolType.Normal)
+                        {
+                            symbol.Add(symbolNear);
+                        }
+                    }
+                }
+            }
+        }
+
 
     }
 
