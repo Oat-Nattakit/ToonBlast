@@ -28,6 +28,7 @@ public class Board : MonoBehaviour
 
         this._spacingX = GameManager.instance.spacingX;
         this._spacingY = GameManager.instance.spacingY;
+        this._SetBoardSize();
     }
 
     public void InitBoard()
@@ -39,15 +40,13 @@ public class Board : MonoBehaviour
             {                
                 int randomIndex = this._RandomColorSymbol();
                 GameObject newSymbol = this._CreateSymbol(x,y);
-
                 Symbol symbols = newSymbol.GetComponent<Symbol>();
-                Vector2 position = new Vector2(x * _spacingX, y * _spacingY);
+                Vector2 position = new Vector2(x * _spacingX, y * _spacingY);      
                 symbols.transform.localPosition = position;
                 symbols.InitSymbol(SymbolType.Normal, (SymbolColor)randomIndex);
                 this._boardGame[x, y] = new Node(true, newSymbol);
             }
-        }
-        this._SetBoardSize();
+        }        
     } 
 
     private GameObject _CreateSymbol(int x,int y)
@@ -65,6 +64,8 @@ public class Board : MonoBehaviour
         float boardSizeX = (this._boardWidth * this._spacingX);
         float boardSizeY = (this._boardHight * this._spacingY);
         this.ParentBoard.transform.localPosition = new Vector2(-boardSizeX / 2, -boardSizeY / 2);
+        RectTransform rect = this.ParentBoard.GetComponent<RectTransform>();
+        rect.sizeDelta = new Vector2(boardSizeX, boardSizeY);   
     }
 
     public async UniTask<List<int>> Refill()
